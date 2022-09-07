@@ -129,7 +129,18 @@ h5{
     justify-content: center;
     position: absolute;
     bottom: 40px;
-    left: 50px;
+    left: 55px;
+    padding: 6px;
+
+}
+
+.badge_sostenibilita_left{
+    background-color: green;
+    color: white; 
+    justify-content: center;
+    position: absolute;
+    bottom: 40px;
+    left: 0px;
     padding: 6px;
 
 }
