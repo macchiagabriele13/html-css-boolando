@@ -23,10 +23,16 @@ header{
     display: flex;
 }
 
-.row{
+.row_header{
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+}
+
+.row_main{
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 20px;
 }
 .categoria{
     
@@ -47,6 +53,73 @@ header{
     justify-content:flex-end;
 }
 
+/* Start Main */
+
+.grid{
+    padding-top: 70px;
+}
+
+.blocco{
+    position: relative;
+    z-index: -1;
+}
+
+
+.blocco_img{
+    position: relative;
+}
+
+.products{
+    width: 100%;
+    
+}
+
+.badge_love{
+    background-color: white;
+    width: 50px;
+    height: 50px;
+    justify-content: center;
+    position: absolute;
+    top: 5px;
+    right: 0px;
+}
+.cuore{
+    align-self: center;
+}
+
+.badge_discount{
+    background-color: red;
+    color: white; 
+    justify-content: center;
+    position: absolute;
+    bottom: 40px;
+    left: 0px;
+    padding: 6px;
+}
+
+.badge_sostenibilita{
+    background-color: green;
+    color: white; 
+    justify-content: center;
+    position: absolute;
+    bottom: 40px;
+    left: 50px;
+    padding: 6px;
+
+}
+
+.new_price{
+    color: red;
+    font-weight: 600;
+}
+
+.old_price{
+    text-decoration: line-through;
+}
+
+/* End Main */
+
+/* Start Column */
 .col_3{
     width: calc((100% / 12)*3);
     height: 70px;
@@ -60,3 +133,12 @@ header{
     align-items: center;
     justify-content: center;
 }
+
+.col_4{
+    width: calc(((100% / 12)*4) - 20px);
+    padding-top: 55px;
+    padding-bottom: 50px;
+    column-gap: 10px;
+}
+
+/* End Column */
