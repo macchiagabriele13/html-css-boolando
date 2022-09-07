@@ -3,3 +3,60 @@
     padding: 0px;
     box-sizing: border-box;
 }
+
+header{
+    position: fixed;
+    width: 100%;
+}
+
+.navigatore{
+    background-color: orange;
+    height: 70px;
+}
+
+.container{
+    width: 80%;
+    margin: auto;
+}
+
+.flex{
+    display: flex;
+}
+
+.row{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.categoria{
+    
+    color: white;
+    text-decoration: none;
+    padding-right: 10px;
+}
+.logo{
+     width: 140px;
+}
+
+.icons{
+    color: white;
+    padding-left: 10px;
+    
+}
+.just_end{
+    justify-content:flex-end;
+}
+
+.col_3{
+    width: calc((100% / 12)*3);
+    height: 70px;
+    align-items: center;
+   
+}
+
+.col_6{
+    width: calc((100% / 12)*6);
+    height: 70px;
+    align-items: center;
+    justify-content: center;
+}
