@@ -9,6 +9,16 @@ header{
     width: 100%;
 }
 
+footer{
+    background-color: black;
+    height: 90px;
+}
+
+h5{
+    color: white;
+    font-size: 15px;
+}
+
 .navigatore{
     background-color: orange;
     height: 70px;
@@ -17,6 +27,10 @@ header{
 .container{
     width: 80%;
     margin: auto;
+}
+
+.right{
+    align-items: flex-end;
 }
 
 .flex{
@@ -33,6 +47,12 @@ header{
     display: flex;
     flex-wrap: wrap;
     column-gap: 20px;
+}
+
+.row_footer{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
 }
 .categoria{
     
@@ -138,6 +158,27 @@ header{
 
 /* End Main */
 
+/* Footer */
+.link_utili{
+    color: white;
+    padding-right: 5px;
+    padding-top: 5px;
+    text-decoration: none;
+    font-size: 10px;
+}
+.link_social{
+    color: white;
+    padding-right: 5px;
+    padding-top: 5px;
+    text-decoration: none;
+    font-size: 20px;
+}
+
+.titolo_social{
+    font-size: 10px;
+    padding-right: 30px;
+    
+}
 /* Start Column */
 .col_3{
     width: calc((100% / 12)*3);
@@ -152,6 +193,15 @@ header{
     align-items: center;
     justify-content: center;
 }
+
+.col_6_footer{
+    width: calc((100% / 12)*6);
+    height: 90px;
+    justify-content: center;
+    flex-direction: column;
+}
+
+
 
 .col_4{
     width: calc(((100% / 12)*4) - 20px);
