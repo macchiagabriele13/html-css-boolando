@@ -2,11 +2,13 @@
     margin: 0px;
     padding: 0px;
     box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
 }
 
 header{
     position: fixed;
     width: 100%;
+    z-index: 1;
 }
 
 footer{
@@ -81,7 +83,7 @@ h5{
 
 .card{
     position: relative;
-    z-index: -1;
+    z-index: 0;
 }
 
 
@@ -94,14 +96,6 @@ h5{
     
 }
 
-.products_hover{
-    display: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-}
-
 .badge_love{
     background-color: white;
     width: 50px;
@@ -111,6 +105,10 @@ h5{
     top: 5px;
     right: 0px;
 }
+.cuore:hover {
+    color:red;
+}
+
 .cuore{
     align-self: center;
 }
@@ -145,11 +143,16 @@ h5{
     text-decoration: line-through;
 }
 
+.blocco_img:hover .products_hover {
+    display: block;
+}
+
 .products_hover{
     display: none;
     position: absolute;
     top: 0;
     left: 0;
+    width: 100%;
 }
 
 .card:hover {
@@ -177,7 +180,7 @@ h5{
 .titolo_social{
     font-size: 10px;
     padding-right: 30px;
-    
+
 }
 /* Start Column */
 .col_3{
