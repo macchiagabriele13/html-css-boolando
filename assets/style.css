@@ -59,7 +59,7 @@ header{
     padding-top: 70px;
 }
 
-.blocco{
+.card{
     position: relative;
     z-index: -1;
 }
@@ -72,6 +72,14 @@ header{
 .products{
     width: 100%;
     
+}
+
+.products_hover{
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
 }
 
 .badge_love{
@@ -115,6 +123,17 @@ header{
 
 .old_price{
     text-decoration: line-through;
+}
+
+.products_hover{
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.card:hover {
+    cursor: pointer;
 }
 
 /* End Main */
