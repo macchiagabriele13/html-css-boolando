@@ -64,9 +64,7 @@ svg{display:block}
 
 /* hero */
 .hero{position:relative;overflow:hidden;margin-inline:-16px;padding:26px 16px 8px}
-.hero-disc{position:absolute;right:-62px;top:4px;opacity:.9}
-.hero-disc .disc{--s:200px}
-.hero>*:not(.hero-disc){position:relative}
+.hero>*:not(.hero-deck){position:relative}
 .logo{font:clamp(2.3rem,12vw,4.2rem)/.9 var(--f-display);margin:12px 0 0;letter-spacing:0;white-space:nowrap;padding-right:.08em}
 .sub{font:800 1.2rem var(--f-body);margin:8px 0 12px}
 .sub .a{color:var(--p1)} .sub .b{color:var(--p2)}
@@ -94,7 +92,8 @@ svg{display:block}
 .count{margin-top:auto;padding-top:8px;font-size:1.15rem;font-weight:700;color:var(--c)}
 .count span{font-size:.72rem;color:var(--muted);font-weight:500}
 .tick{position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;color:transparent;transition:.2s}
-.tick svg{width:14px;height:14px}
+.tick svg{width:14px;height:14px;transform:scale(0);transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+.deck input:checked+.tile .tick svg{transform:scale(1)}
 .deck input:checked+.tile{border-color:var(--c);box-shadow:0 14px 30px -16px var(--c)}
 .deck input:checked+.tile .tick{background:var(--c);border-color:var(--c);color:var(--deep)}
 .deck input:not(:checked)+.tile{opacity:.5}
@@ -178,7 +177,8 @@ svg{display:block}
 .vicon{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--vc);color:var(--deep);flex:none;box-shadow:0 0 24px -4px var(--vc)}
 .vicon svg{width:20px;height:20px}
 .verdict.ok{--vc:var(--ok);color:var(--ok)}
-.verdict.ko{--vc:var(--ko);color:var(--ko);animation:shake .5s .75s}
+.verdict.ko{--vc:var(--ko);color:var(--ko)}
+.fr .verdict.ko{animation:shake .5s .8s}
 @keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
 
 /* timeline */
@@ -189,7 +189,8 @@ svg{display:block}
 .mini{--c:var(--b0);flex:0 0 96px;height:132px;border-radius:14px;padding:10px;display:flex;flex-direction:column;justify-content:space-between;color:var(--deep);background:radial-gradient(circle at 90% 8%,rgba(255,255,255,.4),transparent 40%),linear-gradient(160deg,color-mix(in oklab,var(--c) 72%,#fff),var(--c));scroll-snap-align:center;box-shadow:0 12px 24px -16px var(--c)}
 .mini .y{font:1.3rem/1 var(--f-display)}
 .mini .t{font-size:.72rem;line-height:1.2;font-weight:700;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.mini.new{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--ink),0 14px 30px -10px var(--c);animation:pop .7s .35s cubic-bezier(.3,1.5,.5,1) both}
+.mini.new{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--ink),0 14px 30px -10px var(--c)}
+.fr .mini.new{animation:pop .7s .35s cubic-bezier(.3,1.5,.5,1) both}
 @keyframes pop{from{transform:scale(.6) translateY(14px);opacity:0}}
 .slot{flex:0 0 32px;height:132px;border-radius:12px;border:1.5px dashed var(--line);background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-weight:600;font-size:1.2rem;transition:flex-basis .25s,background .2s,border-color .2s,color .2s,box-shadow .2s;scroll-snap-align:center}
 .slot:hover{border-color:var(--muted);color:var(--ink)}
@@ -216,7 +217,10 @@ svg{display:block}
 /* online mode */
 .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:999px;background:var(--glass);border:1px solid var(--line)}
 .tabs button{border:0;background:transparent;border-radius:999px;padding:11px 6px;font-weight:700;font-size:.88rem;color:var(--muted);transition:background .2s,color .2s}
-.tabs button[aria-pressed="true"]{background:var(--ink);color:var(--deep)}
+.tabs{position:relative}
+.tabs button{position:relative;z-index:1}
+.tabs button[aria-pressed="true"]{color:var(--deep)}
+.tab-ind{position:absolute;z-index:0;top:4px;bottom:4px;left:4px;width:calc((100% - 16px)/3);border-radius:999px;background:var(--ink);box-shadow:0 8px 20px -10px var(--ink);transform:translateX(calc(var(--x,0)*(100% + 4px)));transition:transform .45s cubic-bezier(.3,1.25,.5,1)}
 .single{display:flex;align-items:center;gap:10px;padding:7px 12px 7px 7px;border-radius:16px;background:var(--glass-2);border:1.5px solid transparent}
 .single:focus-within{border-color:var(--p1)}
 .single input{flex:1;min-width:0;border:0;background:transparent;font-weight:700;font-size:1rem;outline:none;padding:6px 0}
@@ -267,8 +271,97 @@ svg{display:block}
 .rank li .mono:last-child{color:var(--muted);font-size:.8rem}
 .dj.watch{border-color:var(--line);background:var(--glass)}
 
+
+/* ================= motion: "the record is playing" ================= */
+.grad-text{background-image:linear-gradient(95deg,var(--b1),var(--p1) 22%,var(--b3) 45%,var(--p2) 68%,var(--b1));background-size:220% 100%;animation:flow 9s ease-in-out infinite alternate}
+@keyframes flow{from{background-position:0% 50%}to{background-position:100% 50%}}
+
+/* turntable */
+.hero-deck{position:absolute;right:-58px;top:22px;width:200px;height:200px}
+.hero-deck .disc{--s:200px}
+.deck-glow{position:absolute;inset:-14%;border-radius:50%;background:radial-gradient(closest-side,color-mix(in oklab,var(--p2) 38%,transparent),color-mix(in oklab,var(--p1) 22%,transparent) 55%,transparent);filter:blur(12px);animation:beat 1.8s ease-in-out infinite}
+@keyframes beat{0%,100%{opacity:.35;transform:scale(.96)}50%{opacity:.7;transform:scale(1.03)}}
+.platter{position:absolute;inset:0}
+.vinyl{animation:spin 1.8s linear infinite}
+.disc-label::before{content:"";position:absolute;left:50%;top:9%;width:10%;height:17%;margin-left:-5%;border-radius:3px;background:rgba(255,255,255,.85);box-shadow:0 0 6px rgba(255,255,255,.6)}
+.boot .vinyl{animation-delay:3.1s}
+.boot .platter{animation:spinup 2s cubic-bezier(.5,0,.75,.5) 1.1s both}
+@keyframes spinup{from{transform:rotate(0)}to{transform:rotate(200deg)}}
+.tonearm{position:absolute;left:0;top:0;width:200px;height:200px;overflow:visible;transform-origin:132px -14px;animation:track 3.6s ease-in-out infinite;filter:drop-shadow(0 6px 6px rgba(0,0,0,.55))}
+.boot .tonearm{animation:armIn 1s cubic-bezier(.45,0,.2,1) .25s both,track 3.6s ease-in-out 1.25s infinite}
+@keyframes armIn{from{transform:rotate(-38deg) scale(1.06);filter:drop-shadow(0 14px 10px rgba(0,0,0,.5))}70%{transform:rotate(1.5deg) scale(1.02)}to{transform:rotate(0) scale(1)}}
+@keyframes track{0%,100%{transform:rotate(0)}50%{transform:rotate(.9deg)}}
+.tonearm .base{fill:var(--deep);stroke:var(--line);stroke-width:1.5}
+.tonearm .pin{fill:var(--muted)}
+.tonearm .rod{fill:none;stroke:var(--ink);stroke-opacity:.8;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.tonearm .head{fill:var(--ink)}
+.tonearm .weight{fill:var(--muted)}
+.mnote{position:absolute;left:92px;top:58px;width:18px;height:18px;opacity:0;animation:noteUp 3.6s ease-out infinite}
+.mnote svg{width:100%;height:100%}
+.mnote.n1{color:var(--p2)}
+.mnote.n2{color:var(--gold);animation-delay:1.2s;left:70px;top:74px}
+.mnote.n3{color:var(--p1);animation-delay:2.4s;left:108px;top:84px}
+.boot .mnote.n1{animation-delay:3.2s}.boot .mnote.n2{animation-delay:4.4s}.boot .mnote.n3{animation-delay:5.6s}
+@keyframes noteUp{0%{opacity:0;transform:translate(0,0) scale(.5) rotate(-12deg)}15%{opacity:.95}100%{opacity:0;transform:translate(18px,-84px) scale(1.1) rotate(14deg)}}
+
+/* screen entrance */
+.enter>*:not(.hero){animation:rise .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*60ms)}
+.enter .hero>:not(.hero-deck){animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
+.enter .hero>:nth-child(3){animation-delay:.08s}.enter .hero>:nth-child(4){animation-delay:.16s}.enter .hero>:nth-child(5){animation-delay:.24s}
+.enter .hero-deck{animation:deckIn .9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}}
+@keyframes deckIn{from{opacity:0;transform:translateX(40px) rotate(-20deg)}}
+
+/* buttons */
+.cta,.btn-solid,.btn-ghost,.chip,.seg button,.tabs button,.stepper button,.slot{position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent}
+.ripple{position:absolute;border-radius:50%;background:currentColor;opacity:.28;transform:scale(0);animation:ripple .65s cubic-bezier(.2,.8,.2,1) forwards;pointer-events:none}
+@keyframes ripple{to{transform:scale(1);opacity:0}}
+.cta:not(:disabled)::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.38) 50%,transparent 65%);transform:translateX(-130%);animation:sheen 5s ease-in-out 1.6s infinite}
+@keyframes sheen{0%,72%{transform:translateX(-130%)}100%{transform:translateX(130%)}}
+.cta svg:last-child{transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+.cta:hover svg:last-child{transform:translateX(4px)}
+.cta:not(:disabled):active,.btn-solid:active,.btn-ghost:active,.chip:active,.seg button:active{transform:scale(.97)}
+.mini-eq{display:inline-flex;align-items:flex-end;gap:2px;height:16px}
+.mini-eq i{width:3px;height:100%;border-radius:2px;background:currentColor;transform-origin:bottom;animation:eq .7s ease-in-out infinite alternate}
+.mini-eq i:nth-child(2){animation-delay:-.35s}.mini-eq i:nth-child(3){animation-delay:-.6s}.mini-eq i:nth-child(4){animation-delay:-.15s}
+.cta.on{--cta-bg:linear-gradient(100deg,color-mix(in oklab,var(--ok) 70%,#fff),var(--ok));color:var(--deep)}
+
+/* cards */
+.stage{position:relative}
+.floaty{transform-style:preserve-3d}
+.stage.idle .floaty{animation:float 4.2s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.stage::after{content:"";position:absolute;left:14%;right:14%;bottom:-20px;height:22px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.6),transparent);z-index:-1}
+.stage.idle::after{animation:shadow 4.2s ease-in-out infinite}
+@keyframes shadow{0%,100%{transform:scaleX(1);opacity:1}50%{transform:scaleX(.84);opacity:.6}}
+.slot.sel{animation:slotPulse 1.6s ease-in-out infinite}
+@keyframes slotPulse{50%{box-shadow:0 0 38px -2px var(--pc)}}
+.vicon .draw{stroke-dasharray:1;stroke-dashoffset:0}
+.fr .vicon{animation:iconPop .55s cubic-bezier(.3,1.7,.5,1) .65s both}
+.fr .vicon .draw{stroke-dashoffset:1;animation:draw .4s ease-out 1s forwards}
+.fr .vicon .draw+.draw{animation-delay:1.15s}
+@keyframes iconPop{from{transform:scale(0) rotate(-40deg)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* scoreboard & turn */
+.pchip.on{animation:breathe 2.6s ease-in-out infinite}
+@keyframes breathe{50%{box-shadow:0 0 0 1px var(--pc),0 14px 40px -10px var(--pc)}}
+.tok.bump svg{animation:coin .8s cubic-bezier(.3,1.4,.5,1)}
+@keyframes coin{0%{transform:scale(1) rotateY(0)}45%{transform:scale(1.7) rotateY(360deg)}100%{transform:scale(1) rotateY(720deg)}}
+.who.turn-in{animation:turnIn .7s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes turnIn{from{opacity:0;transform:scale(.8);filter:blur(10px);letter-spacing:.12em}}
+
+/* lobby & win */
+.enter .bigcode span{animation:flipIn .7s cubic-bezier(.3,1.4,.5,1) both;animation-delay:calc(250ms + var(--k,0)*110ms)}
+@keyframes flipIn{from{opacity:0;transform:perspective(300px) rotateX(-90deg) translateY(10px)}}
+.lobby li.new{animation:slideIn .5s cubic-bezier(.3,1.3,.5,1) both;animation-delay:calc(var(--k,0)*60ms)}
+.pfield.new{animation:slideIn .45s cubic-bezier(.3,1.3,.5,1) both}
+@keyframes slideIn{from{opacity:0;transform:translateX(-18px) scale(.96)}}
+.enter .who-big{animation:winIn .9s cubic-bezier(.3,1.5,.5,1) .15s both}
+@keyframes winIn{from{opacity:0;transform:scale(.4)}}
+
 @media (max-width:360px){.names,.decks{grid-template-columns:1fr}.pmeta b{font-size:.9rem}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.001ms!important}.vinyl{animation:spin 3.6s linear infinite!important}.mnote,.ripple,.fx{display:none}}
 </style>
 </head>
 <body>
@@ -302,6 +395,32 @@ const I={
   coin:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="var(--gold)"/><circle cx="12" cy="12" r="5.5" fill="none" stroke="var(--deep)" stroke-opacity=".35" stroke-width="2"/></svg>'
 };
 const disc=()=>'<div class="disc" aria-hidden="true"><div class="vinyl"><div class="disc-label"></div></div></div>';
+const NOTE='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18.2a3.2 3.2 0 1 1-2-2.97V5.2l12-2.6v12.6a3.2 3.2 0 1 1-2-2.97V7.4L9 9.1z" fill="currentColor"/></svg>';
+const ARM='<svg class="tonearm" viewBox="0 0 200 200" aria-hidden="true"><path class="rod" d="M132 -14 L96 20 L80 34"/><circle class="base" cx="132" cy="-14" r="11"/><circle class="pin" cx="132" cy="-14" r="3.5"/><rect class="head" x="73" y="27" width="13" height="18" rx="3" transform="rotate(46 80 36)"/></svg>';
+const deck=boot=>`<div class="hero-deck ${boot?'boot':''}" aria-hidden="true"><div class="deck-glow"></div><div class="platter">${disc()}</div>${ARM}<span class="mnote n1">${NOTE}</span><span class="mnote n2">${NOTE}</span><span class="mnote n3">${NOTE}</span></div>`;
+const VI={
+  ok:'<svg viewBox="0 0 24 24" aria-hidden="true"><path class="draw" pathLength="1" d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  ko:'<svg viewBox="0 0 24 24" aria-hidden="true"><path class="draw" pathLength="1" d="M6.5 6.5l11 11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path class="draw" pathLength="1" d="M17.5 6.5l-11 11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>'
+};
+const PLAYING='<span class="mini-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span> In riproduzione su Spotify';
+/* ogni volta che si cambia schermata gli elementi entrano in sequenza */
+let lastScreen='';
+function enterScreen(name){
+  const app=$('#app');
+  if(name===lastScreen){app.classList.remove('enter');return}
+  lastScreen=name;
+  [...app.children].forEach((c,i)=>c.style.setProperty('--i',i));
+  app.classList.remove('enter');void app.offsetWidth;app.classList.add('enter');
+  clearTimeout(enterScreen.t);enterScreen.t=setTimeout(()=>app.classList.remove('enter'),1600);
+}
+/* onda al tocco sui pulsanti */
+document.addEventListener('pointerdown',e=>{
+  const el=e.target.closest('.cta,.btn-solid,.btn-ghost,.chip,.seg button,.tabs button,.stepper button,.slot');
+  if(!el||el.disabled||reduced())return;
+  const r=el.getBoundingClientRect(),s=Math.max(r.width,r.height)*2.2,w=document.createElement('span');
+  w.className='ripple';w.style.cssText=`width:${s}px;height:${s}px;left:${e.clientX-r.left-s/2}px;top:${e.clientY-r.top-s/2}px`;
+  el.appendChild(w);setTimeout(()=>w.remove(),700);
+},{passive:true});
 function eq(n){let h='<div class="eq" aria-hidden="true">';for(let i=0;i<(n||19);i++){h+=`<i style="--h:${8+Math.round(Math.random()*22)}px;--d:${(-Math.random()).toFixed(2)}s"></i>`}return h+'</div>'}
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.remove('show');void t.offsetWidth;t.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('show'),4500)}
 function buzz(p){try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
@@ -366,7 +485,10 @@ let MODE=null;        // 'local' | 'online'
 let G=null;           // partita (o sala d'attesa, se G.lobby)
 let SEAT=null, CODE=null, VER=0, poll=null, busy=false, err='';
 let home={tab:'local',count:2,names:DEFAULT_NAMES.slice(),decks:[true,true,true,true],target:10,myname:ls.get('hs-myname')||'',code:''};
-let confirmReset=false, dealt='', lastFlipKey='', winSeen='', winFx='';
+let confirmReset=false, dealt='', lastFlipKey='', winSeen='', winFx='', lastTurnKey='', prevTab='local', lastCount=2;
+const prevPct={}, prevTok={}, seenLobby=new Set();
+const TABS=['local','create','join'];
+const gk=()=>(CODE||'L')+':'+G.p.map(q=>q.tl[0]).join('.');
 
 const saveLocal=()=>ls.set('hs-local',G);
 async function post(body){
@@ -421,7 +543,7 @@ function playersBlock(){
   return `<section class="panel"><div class="panel-head"><h2 class="eyebrow">Giocatori</h2>
       <div class="stepper" role="group" aria-label="Numero di giocatori"><button id="minus" aria-label="Un giocatore in meno" ${home.count<=2?'disabled':''}>−</button><span class="mono" id="cnt">${home.count}</span><button id="plus" aria-label="Un giocatore in più" ${home.count>=MAXP?'disabled':''}>+</button></div></div>
     <div class="names">
-      ${Array.from({length:home.count},(_,i)=>`<label class="pfield" style="--pc:${PC[i]}"><span class="avatar" id="av${i}">${esc(initial(home.names[i],i))}</span><input id="n${i}" value="${esc(home.names[i])}" placeholder="Nome" aria-label="Nome giocatore ${i+1}" maxlength="14" autocomplete="off"></label>`).join('')}
+      ${Array.from({length:home.count},(_,i)=>`<label class="pfield ${i>=lastCount?'new':''}" style="--pc:${PC[i]}"><span class="avatar" id="av${i}">${esc(initial(home.names[i],i))}</span><input id="n${i}" value="${esc(home.names[i])}" placeholder="Nome" aria-label="Nome giocatore ${i+1}" maxlength="14" autocomplete="off"></label>`).join('')}
     </div><p class="note">Giocate passandovi questo telefono. Il giocatore dopo di te fa partire la canzone.</p></section>`;
 }
 function scoreLine(g){
@@ -429,10 +551,10 @@ function scoreLine(g){
 }
 function viewHome(){
   const loc=ls.get('hs-local'), onl=ls.get('hs-online');
-  const t=home.tab;
+  const t=home.tab, boot=lastScreen!=='home', keepHero=lastScreen==='home'?$('.hero'):null;
   $('#app').innerHTML=`
   <header class="hero">
-    <div class="hero-disc">${disc()}</div>
+    ${deck(boot)}
     <p class="eyebrow">Gioco musicale · da 2 a 6 giocatori</p>
     <h1 class="logo grad-text">HITSTER</h1>
     <p class="sub">di <span class="a">Gabri</span> e <span class="b">Carla</span></p>
@@ -443,7 +565,7 @@ function viewHome(){
   ${loc&&!loc.over?`<section class="panel resume"><div><p class="eyebrow">Partita su questo telefono</p>
       <p class="resume-score">${scoreLine(loc)}</p></div>
     <button class="${onl?'btn-ghost':'btn-solid'}" id="resumeLoc">Riprendi ${I.arrow}</button></section>`:''}
-  <div class="tabs" role="group" aria-label="Modalità di gioco">
+  <div class="tabs" role="group" aria-label="Modalità di gioco"><span class="tab-ind" id="tabind" style="--x:${TABS.indexOf(prevTab)}"></span>
     <button data-tab="local" aria-pressed="${t==='local'}">Un telefono</button>
     <button data-tab="create" aria-pressed="${t==='create'}">Crea online</button>
     <button data-tab="join" aria-pressed="${t==='join'}">Entra</button>
@@ -466,6 +588,10 @@ function viewHome(){
     <div class="bar"><i style="width:${(PLAYED.size/DATA.length*100).toFixed(1)}%"></i></div>
     ${PLAYED.size?(confirmReset?`<div class="confirm"><span>Rimettere in gioco tutte le canzoni già uscite? Vale per tutti i telefoni.</span><div class="confirm-row"><button class="btn-ghost sm" id="no">Annulla</button><button class="btn-solid sm" id="yes">Sì, rimettile in gioco</button></div></div>`:`<button class="link" id="reset">Rimettile tutte in gioco</button>`):''}
   </footer>`;
+  if(keepHero)$('.hero').replaceWith(keepHero);   /* il giradischi continua a girare senza ripartire */
+  enterScreen('home');
+  requestAnimationFrame(()=>{const ind=$('#tabind');if(ind)ind.style.setProperty('--x',TABS.indexOf(t))});prevTab=t;
+  lastCount=home.count;
   $$('[data-tab]').forEach(b=>b.onclick=()=>{home.tab=b.dataset.tab;err='';viewHome()});
   $$('[data-k]').forEach(el=>el.onchange=()=>{home.decks[+el.dataset.k]=el.checked});
   $$('[data-t]').forEach(el=>el.onclick=()=>{home.target=+el.dataset.t;$$('[data-t]').forEach(b=>b.setAttribute('aria-pressed',b===el))});
@@ -540,17 +666,20 @@ function topbar(){
 }
 function scoreboard(){
   const many=G.p.length===3||G.p.length>=5;
+  const off=x=>(119.4*(1-x)).toFixed(1);
   return `<div class="board ${many?'many':''}">${G.p.map((p,i)=>{const pct=Math.min(1,p.tl.length/G.target),on=G.over?G.winner===i:G.cur===i;
+    const key=gk()+':'+i,from=key in prevPct?prevPct[key]:pct,up=key in prevTok&&p.tok>prevTok[key];prevPct[key]=pct;prevTok[key]=p.tok;
     return `<div class="pchip ${on?'on':''}" style="--pc:${PC[i]}">
-      <span class="ring"><svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="19" class="trk"/><circle cx="22" cy="22" r="19" class="val" style="stroke-dashoffset:${(119.4*(1-pct)).toFixed(1)}"/></svg>${esc(initial(p.name,i))}</span>
-      <span class="pmeta"><b>${esc(p.name)}${MODE==='online'&&i===SEAT?'<span class="pill">tu</span>':''}</b><span class="prow"><span class="mono">${p.tl.length}/${G.target}</span><span class="tok" title="Gettoni">${I.coin}<span class="mono">${p.tok}</span></span></span></span></div>`}).join('')}</div>`;
+      <span class="ring"><svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="19" class="trk"/><circle cx="22" cy="22" r="19" class="val" style="stroke-dashoffset:${off(from)}" data-to="${off(pct)}"/></svg>${esc(initial(p.name,i))}</span>
+      <span class="pmeta"><b>${esc(p.name)}${MODE==='online'&&i===SEAT?'<span class="pill">tu</span>':''}</b><span class="prow"><span class="mono">${p.tl.length}/${G.target}</span><span class="tok ${up?'bump':''}" title="Gettoni">${I.coin}<span class="mono">${p.tok}</span></span></span></span></div>`}).join('')}</div>`;
 }
+function animateBoard(){requestAnimationFrame(()=>requestAnimationFrame(()=>$$('.ring .val[data-to]').forEach(c=>c.style.strokeDashoffset=c.dataset.to)))}
 function cardHTML(i,flipped,deal){
   const d=T(i);
-  return `<div class="stage ${deal?'deal':''}" id="stage" style="--pc:${PC[G.cur]}"><div class="card ${flipped?'flip':''}" id="card">
+  return `<div class="stage ${deal?'deal':''} ${flipped?'':'idle'}" id="stage" style="--pc:${PC[G.cur]}"><div class="floaty"><div class="card ${flipped?'flip':''}" id="card">
    <div class="face front">${disc()}${eq()}<span class="cap mono">Carta misteriosa · ????</span></div>
    <div class="face back" style="--c:${col(d[3])}"><span class="decade mono">Anni ${Math.floor(d[3]/10)*10}</span><div class="yr">${d[3]}</div><div class="ti">${esc(d[1])}</div><div class="ar">${esc(d[2])}</div></div>
-  </div></div>`;
+  </div></div></div>`;
 }
 function timeline(p,interactive,hl){
   let h='<div class="tl" id="tl">';const n=p.tl.length;
@@ -577,13 +706,14 @@ function viewLobby(){
   const host=SEAT===0, n=G.names.length;
   $('#app').innerHTML=`${topbar()}
   <section class="panel waiting"><p class="eyebrow">Sala d'attesa</p><h1>${host?'Dai questo codice agli altri':'Sei dentro!'}</h1>
-    <div class="bigcode" aria-label="Codice ${esc(CODE)}">${[...CODE].map(c=>`<span>${esc(c)}</span>`).join('')}</div>
+    <div class="bigcode" aria-label="Codice ${esc(CODE)}">${[...CODE].map((c,k)=>`<span style="--k:${k}">${esc(c)}</span>`).join('')}</div>
     <p class="note">${host?'Aprono l\'app, toccano <b>Entra</b> e inseriscono il codice.':'Altri possono entrare con lo stesso codice.'}</p></section>
   <section class="panel"><div class="panel-head"><h2 class="eyebrow">Giocatori</h2><span class="mono muted">${n} / ${MAXP}</span></div>
-    <ol class="lobby">${G.names.map((nm,i)=>`<li style="--pc:${PC[i]}"><span class="avatar">${esc(initial(nm,i))}</span><b>${esc(nm)}</b>${i===0?'<span class="pill">crea</span>':''}${i===SEAT?'<span class="pill me">tu</span>':''}</li>`).join('')}
+    <ol class="lobby">${G.names.map((nm,i)=>{const isNew=!seenLobby.has(CODE+':'+nm);seenLobby.add(CODE+':'+nm);return `<li class="${isNew?'new':''}" style="--pc:${PC[i]};--k:${i}"><span class="avatar">${esc(initial(nm,i))}</span><b>${esc(nm)}</b>${i===0?'<span class="pill">crea</span>':''}${i===SEAT?'<span class="pill me">tu</span>':''}</li>`}).join('')}
       ${n<MAXP?`<li class="empty"><span class="avatar">+</span><span>In attesa…</span></li>`:''}</ol></section>
   ${host?`<div class="dock"><button class="cta" id="begin" ${n<2?'disabled':''}>${n<2?'Serve almeno un altro giocatore':'Inizia la partita con '+n+' giocatori '+I.arrow}</button></div>`
         :`<div class="waitline playing">${eq(9)}<span>In attesa che ${esc(G.names[0])} avvii la partita…</span></div>`}`;
+  enterScreen('lobby:'+CODE);
   $('#menu').onclick=leave;
   if($('#begin'))$('#begin').onclick=startFromLobby;
 }
@@ -605,6 +735,7 @@ function render(){
       <p class="lead">${full?G.target+' carte al posto giusto.':'Mazzo finito: vince chi ha più carte.'}</p></section>
     ${G.p.length>2?ranking():scoreboard()}${rail(w,'La linea del tempo di '+esc(w.name),false,null,G.winner)}
     <div class="dock"><button class="cta" id="again">Nuova partita ${I.arrow}</button></div>`;
+    enterScreen('win');animateBoard();
     bindMenu();
     $('#again').onclick=()=>{if(MODE==='local')ls.del('hs-local');leave()};
     if(winFx!==gameKey){winFx=gameKey;setTimeout(()=>confetti(true),250)}
@@ -612,7 +743,9 @@ function render(){
   }
 
   const d=T(G.card);
-  const turn=`<div class="turn" style="--pc:${PC[G.cur]}"><span class="eyebrow">${online&&mine?'Tocca a te':'Tocca a'}</span><span class="who">${esc(p.name)}</span></div>`;
+  const turnKey=gameKey+':'+G.cur,turnFresh=turnKey!==lastTurnKey;lastTurnKey=turnKey;
+  const fr=G.phase==='reveal'&&cardKey!==lastFlipKey;
+  const turn=`<div class="turn" style="--pc:${PC[G.cur]}"><span class="eyebrow">${online&&mine?'Tocca a te':'Tocca a'}</span><span class="who ${turnFresh?'turn-in':''}">${esc(p.name)}</span></div>`;
   const spotify=`<a class="cta light" href="https://open.spotify.com/track/${d[0]}" target="_blank" rel="noopener" id="play">${I.play} Ascolta su Spotify</a>`;
   let body='';
   if(G.phase==='listen'){
@@ -640,16 +773,18 @@ function render(){
   } else {
     const ok=G.free||G.lastOk;
     const toWin=G.over&&G.winner===G.cur&&p.tl.length>=G.target;
-    body=`${turn}<div class="verdict ${ok?'ok':'ko'}"><span class="vicon">${ok?I.check:I.x}</span><span>${G.free?'Carta gratis!':G.lastOk?'Posto giusto, la carta è di '+esc(p.name):'Sbagliato, era del '+d[3]}</span></div>
+    body=`${turn}<div class="verdict ${ok?'ok':'ko'}"><span class="vicon">${ok?VI.ok:VI.ko}</span><span>${G.free?'Carta gratis!':G.lastOk?'Posto giusto, la carta è di '+esc(p.name):'Sbagliato, era del '+d[3]}</span></div>
     ${cardHTML(G.card,true,false)}
     ${G.free?'':`<div class="extras"><button class="chip" id="guess" aria-pressed="${!!G.guessed}">${I.coin} ${G.guessed?'Titolo e artista indovinati: +1 gettone':'Titolo e artista indovinati?'}</button></div>`}
     ${rail(p,'La linea del tempo di '+esc(p.name),false,ok?G.card:null,G.cur)}
     <div class="dock"><button class="cta player" id="next" style="--pc:${PC[toWin?G.winner:nx]}">${toWin?'Vedi chi ha vinto':'Tocca a '+esc(dj.name)} ${I.arrow}</button></div>`;
   }
   $('#app').innerHTML=`${topbar()}${scoreboard()}${body}`;
+  $('#app').classList.toggle('fr',fr);
+  enterScreen('game:'+gameKey);animateBoard();
   bindMenu();
   const tl=$('#tl');
-  if($('#play'))$('#play').onclick=()=>{const st=$('#stage');if(st)st.classList.add('playing')};
+  if($('#play'))$('#play').onclick=()=>{const st=$('#stage');if(st)st.classList.add('playing');const b=$('#play');b.classList.add('on');b.innerHTML=PLAYING};
   if(G.phase==='listen'){
     $$('[data-s]').forEach(b=>b.onclick=()=>{
       G.slot=+b.dataset.s;if(MODE==='local')saveLocal();
@@ -673,7 +808,7 @@ function render(){
     }
   }
 }
-syncPlayed().then(()=>{if(!G)viewHome()});
+{const before=[...PLAYED].sort().join();syncPlayed().then(()=>{if(!G&&lastScreen==='home'&&[...PLAYED].sort().join()!==before)viewHome()})}
 viewHome();
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 </script>
