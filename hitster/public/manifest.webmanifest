@@ -1,0 +1,15 @@
+{
+  "name": "Hitster di Gabri e Carla",
+  "short_name": "Hitster",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0D0A1C",
+  "theme_color": "#0D0A1C",
+  "lang": "it",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
