@@ -21,7 +21,7 @@
 :root{
   --bg:#0D0A1C; --glass:rgba(255,255,255,.055); --glass-2:rgba(255,255,255,.095); --line:rgba(255,255,255,.13);
   --ink:#F6F2FF; --muted:#A49CC8; --deep:#140E2E; --vinyl:#15131C; --groove:#22202B;
-  --p1:#3DB6FF; --p2:#FF4FA3; --ok:#2EE6A8; --ko:#FF6B4A; --gold:#FFC83D;
+  --p1:#3DB6FF; --p2:#FF4FA3; --p3:#FFC83D; --p4:#2EE6A8; --p5:#A583FF; --p6:#FF8A4C; --ok:#2EE6A8; --ko:#FF6B4A; --gold:#FFC83D;
   --b0:#FF6B4A; --b1:#FFB23D; --b2:#FF4FA3; --b3:#A583FF; --b4:#3DB6FF; --b5:#2EE6A8;
   --f-display:"Dela Gothic One","Arial Black",Impact,sans-serif;
   --f-body:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -241,6 +241,32 @@ svg{display:block}
 .waitline .eq i{width:3px}
 .playing.waitline .eq i,.waitline.playing .eq i{animation:eq .8s ease-in-out var(--d) infinite alternate}
 
+
+/* 3-6 players */
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.stepper{display:flex;align-items:center;gap:4px;padding:3px;border-radius:999px;background:var(--glass-2);border:1px solid var(--line)}
+.stepper button{width:34px;height:34px;border-radius:50%;border:0;background:var(--glass);font-size:1.2rem;font-weight:700;line-height:1}
+.stepper button:disabled{opacity:.3;cursor:default}
+.stepper span{min-width:22px;text-align:center;font-weight:700}
+.board.many{grid-template-columns:repeat(3,1fr);gap:8px}
+.board.many .pchip{flex-direction:column;gap:6px;padding:10px 6px;text-align:center}
+.board.many .pmeta{align-items:center;width:100%}
+.board.many .pmeta b{font-size:.85rem;max-width:100%}
+.board.many .pmeta b .pill{display:none}
+.board.many .ring{width:40px;height:40px;font-size:.95rem}
+.board.many .prow{gap:8px;font-size:.72rem}
+.lobby,.rank{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.lobby li,.rank li{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 8px;border-radius:16px;background:var(--glass-2);min-width:0}
+.lobby li b,.rank li b{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lobby .avatar,.rank .avatar{width:34px;height:34px;font-size:.95rem}
+.lobby .pill.me{color:var(--pc);border-color:var(--pc)}
+.lobby li.empty{background:transparent;border:1.5px dashed var(--line);color:var(--muted)}
+.lobby li.empty .avatar{background:transparent;color:var(--muted);box-shadow:none;border:1.5px dashed var(--line)}
+.rank .pos{width:18px;text-align:center;color:var(--muted);font-weight:700}
+.rank li:first-child{background:color-mix(in oklab,var(--pc) 18%,var(--glass-2));box-shadow:inset 0 0 0 1.5px var(--pc)}
+.rank li .mono:last-child{color:var(--muted);font-size:.8rem}
+.dj.watch{border-color:var(--line);background:var(--glass)}
+
 @media (max-width:360px){.names,.decks{grid-template-columns:1fr}.pmeta b{font-size:.9rem}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
@@ -253,15 +279,20 @@ svg{display:block}
 <script>
 const DECKS=[{n:"Mazzo base",d:"Hit dal 2000 a oggi",c:"var(--b3)"},{n:"Estate & Sanremo",d:"Tormentoni e Festival",c:"var(--gold)"},{n:"Rap, indie & internazionali",d:"Dal rap italiano alle hit estere",c:"var(--b2)"},{n:"Classici & novità",d:"Cantautori, band e ultimi Sanremo",c:"var(--b4)"}];
 const BANDS=[[2004,'var(--b0)'],[2009,'var(--b1)'],[2014,'var(--b2)'],[2019,'var(--b3)'],[2022,'var(--b4)'],[2099,'var(--b5)']];
-const PC=['var(--p1)','var(--p2)'];
+const MAXP=6;
+const PC=['var(--p1)','var(--p2)','var(--p3)','var(--p4)','var(--p5)','var(--p6)'];
+const DEFAULT_NAMES=['Gabri','Carla','','','',''];
 const col=y=>BANDS.find(b=>y<=b[0])[1];
 const T=i=>DATA[i];
 const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 const ls={get(k){try{const s=localStorage.getItem(k);return s?JSON.parse(s):null}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
-const initial=(n,i)=>((n||'').trim()||(i?'Carla':'Gabri'))[0].toUpperCase();
+const fallbackName=i=>DEFAULT_NAMES[i]||'Giocatore '+(i+1);
+const cleanName=(n,i)=>((n||'').trim()||fallbackName(i)).slice(0,14);
+const initial=(n,i)=>(n||'').trim()||DEFAULT_NAMES[i]?cleanName(n,i)[0].toUpperCase():String(i+1);
 const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+const nextOf=(G,i)=>(i+1)%G.p.length;
 
 const I={
   play:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" fill="currentColor"/></svg>',
@@ -309,14 +340,14 @@ function markPlayed(i){const id=DATA[i][0];PLAYED.add(id);pendingAdd.add(id);ls.
 function unmarkPlayed(i){const id=DATA[i][0];PLAYED.delete(id);pendingAdd.delete(id);ls.set('hs-played',[...PLAYED]);ls.set('hs-pending',[...pendingAdd]);syncPlayed({remove:[id]})}
 const fresh=k=>DATA.filter(d=>d[4]===k&&!PLAYED.has(d[0])).length;
 
-/* ---------- logica di gioco (uguale per 1 o 2 telefoni) ---------- */
+/* ---------- logica di gioco (uguale per 1 o più telefoni) ---------- */
 function newGame(names,decks,target){
   const sel=DATA.map((d,i)=>i).filter(i=>decks[DATA[i][4]]);
   let avail=sel.filter(i=>!PLAYED.has(DATA[i][0])),note='';
-  if(avail.length<target*4){avail=sel;note='Avevate ascoltato quasi tutte le canzoni dei mazzi scelti: le ho rimesse in gioco.';syncPlayed({remove:sel.map(i=>DATA[i][0])});sel.forEach(i=>PLAYED.delete(DATA[i][0]))}
+  if(avail.length<target*2*names.length){avail=sel;note='Avevate ascoltato quasi tutte le canzoni dei mazzi scelti: le ho rimesse in gioco.';syncPlayed({remove:sel.map(i=>DATA[i][0])});sel.forEach(i=>PLAYED.delete(DATA[i][0]))}
   const pool=shuffle(avail);
   const G={pool,target,decks,cur:0,over:false,winner:null,card:null,phase:'listen',slot:null,guessed:false,free:false,lastOk:null,note,
-    p:[{name:names[0],tl:[pool.pop()],tok:0},{name:names[1],tl:[pool.pop()],tok:0}]};
+    p:names.map(n=>({name:n,tl:[pool.pop()],tok:0}))};
   G.p.forEach(p=>{p.tl.sort((a,b)=>T(a)[3]-T(b)[3]);p.tl.forEach(markPlayed)});
   drawCard(G);return G;
 }
@@ -327,33 +358,50 @@ function doPlace(G,k){const p=G.p[G.cur],y=T(G.card)[3];const lo=k>0?T(p.tl[k-1]
 function doSpend(G){const p=G.p[G.cur];p.tok-=3;G.free=true;G.lastOk=true;insert(G);G.phase='reveal';checkWin(G)}
 function doSkip(G){unmarkPlayed(G.card);G.pool.unshift(G.card);drawCard(G)}
 function doGuess(G){G.guessed=!G.guessed;G.p[G.cur].tok+=G.guessed?1:-1}
-function doNext(G){if(G.over)return;G.cur=1-G.cur;if(!G.pool.length){G.over=true;G.winner=G.p[0].tl.length>=G.p[1].tl.length?0:1}else drawCard(G)}
+function leaderOf(G){let w=0;G.p.forEach((p,i)=>{if(p.tl.length>G.p[w].tl.length)w=i});return w}
+function doNext(G){if(G.over)return;G.cur=nextOf(G,G.cur);if(!G.pool.length){G.over=true;G.winner=leaderOf(G)}else drawCard(G)}
 
 /* ---------- stato app ---------- */
 let MODE=null;        // 'local' | 'online'
-let G=null;           // partita
+let G=null;           // partita (o sala d'attesa, se G.lobby)
 let SEAT=null, CODE=null, VER=0, poll=null, busy=false, err='';
-let home={tab:'local',names:["Gabri","Carla"],decks:[true,true,true,true],target:10,myname:ls.get('hs-myname')||'',code:''};
+let home={tab:'local',count:2,names:DEFAULT_NAMES.slice(),decks:[true,true,true,true],target:10,myname:ls.get('hs-myname')||'',code:''};
 let confirmReset=false, dealt='', lastFlipKey='', winSeen='', winFx='';
 
 const saveLocal=()=>ls.set('hs-local',G);
+async function post(body){
+  const r=await fetch('/api/room',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+  let j=null;try{j=await r.json()}catch(e){}
+  return {status:r.status,ok:r.ok,j};
+}
+/* una mossa di gioco: se qualcuno ha già mosso (409) si prende lo stato aggiornato senza ripetere la mossa */
 async function commit(mutator){
   if(MODE==='local'){mutator(G);saveLocal();render();return}
   if(busy)return; busy=true;
   const draft=JSON.parse(JSON.stringify(G)); mutator(draft);
   try{
-    const r=await fetch('/api/room',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({op:'update',code:CODE,v:VER,state:draft})});
-    const j=await r.json();
-    if(r.status===409){G=j.state;VER=G.v}else if(r.ok){G=j.state;VER=G.v}else throw 0;
+    const {status,ok,j}=await post({op:'update',code:CODE,v:VER,state:draft});
+    if((status===409||ok)&&j&&j.state){G=j.state;VER=G.v}else throw 0;
     err='';
   }catch(e){err='Connessione assente: riprova tra un attimo.'}
   busy=false; render();
+}
+/* entrare in sala d'attesa: se altri entrano nello stesso momento si riprova sullo stato più recente */
+async function commitRetry(mutator){
+  for(let tries=0;tries<6;tries++){
+    const draft=JSON.parse(JSON.stringify(G)); mutator(draft);
+    const {status,ok,j}=await post({op:'update',code:CODE,v:VER,state:draft});
+    if(ok&&j&&j.state){G=j.state;VER=G.v;return true}
+    if(status===409&&j&&j.state){G=j.state;VER=G.v;continue}
+    throw new Error('net');
+  }
+  throw new Error('busy');
 }
 function startPoll(){stopPoll();poll=setInterval(async()=>{
   if(busy||MODE!=='online'||document.hidden)return;
   try{const r=await fetch('/api/room?code='+CODE,{cache:'no-store'});if(!r.ok)return;const j=await r.json();
     if(j.state.v!==VER){G=j.state;VER=G.v;render()}}catch(e){}
-},2000)}
+},3000)}
 function stopPoll(){if(poll)clearInterval(poll);poll=null}
 function leave(){stopPoll();MODE=null;G=null;CODE=null;SEAT=null;ls.del('hs-online');viewHome();window.scrollTo(0,0)}
 
@@ -369,13 +417,23 @@ function decksBlock(){
 function meField(){
   return `<label class="single"><span class="avatar" id="avme" style="--pc:var(--p1)">${esc(initial(home.myname,0))}</span><input id="me" value="${esc(home.myname)}" maxlength="14" placeholder="Il tuo nome" autocomplete="off" aria-label="Il tuo nome"></label>`;
 }
+function playersBlock(){
+  return `<section class="panel"><div class="panel-head"><h2 class="eyebrow">Giocatori</h2>
+      <div class="stepper" role="group" aria-label="Numero di giocatori"><button id="minus" aria-label="Un giocatore in meno" ${home.count<=2?'disabled':''}>−</button><span class="mono" id="cnt">${home.count}</span><button id="plus" aria-label="Un giocatore in più" ${home.count>=MAXP?'disabled':''}>+</button></div></div>
+    <div class="names">
+      ${Array.from({length:home.count},(_,i)=>`<label class="pfield" style="--pc:${PC[i]}"><span class="avatar" id="av${i}">${esc(initial(home.names[i],i))}</span><input id="n${i}" value="${esc(home.names[i])}" placeholder="Nome" aria-label="Nome giocatore ${i+1}" maxlength="14" autocomplete="off"></label>`).join('')}
+    </div><p class="note">Giocate passandovi questo telefono. Il giocatore dopo di te fa partire la canzone.</p></section>`;
+}
+function scoreLine(g){
+  return g.p.map((p,i)=>`<b style="color:${PC[i]}">${esc(p.name)}</b> <span class="mono">${p.tl.length}</span>`).join('<span class="vs">·</span>');
+}
 function viewHome(){
   const loc=ls.get('hs-local'), onl=ls.get('hs-online');
   const t=home.tab;
   $('#app').innerHTML=`
   <header class="hero">
     <div class="hero-disc">${disc()}</div>
-    <p class="eyebrow">Gioco musicale · dal 2000 a oggi</p>
+    <p class="eyebrow">Gioco musicale · da 2 a 6 giocatori</p>
     <h1 class="logo grad-text">HITSTER</h1>
     <p class="sub">di <span class="a">Gabri</span> e <span class="b">Carla</span></p>
     <p class="lead">Ascolta la canzone, indovina quando è uscita e mettila al posto giusto nella tua linea del tempo.</p>
@@ -383,22 +441,18 @@ function viewHome(){
   ${onl?`<section class="panel resume"><div><p class="eyebrow">Partita online</p><p class="resume-score"><span class="pill">Codice ${esc(onl.code)}</span></p></div>
     <button class="btn-solid" id="resumeOn">Torna alla partita ${I.arrow}</button></section>`:''}
   ${loc&&!loc.over?`<section class="panel resume"><div><p class="eyebrow">Partita su questo telefono</p>
-      <p class="resume-score"><b style="color:var(--p1)">${esc(loc.p[0].name)}</b><span class="mono">${loc.p[0].tl.length}</span><span class="vs">contro</span><span class="mono">${loc.p[1].tl.length}</span><b style="color:var(--p2)">${esc(loc.p[1].name)}</b></p></div>
+      <p class="resume-score">${scoreLine(loc)}</p></div>
     <button class="${onl?'btn-ghost':'btn-solid'}" id="resumeLoc">Riprendi ${I.arrow}</button></section>`:''}
   <div class="tabs" role="group" aria-label="Modalità di gioco">
     <button data-tab="local" aria-pressed="${t==='local'}">Un telefono</button>
     <button data-tab="create" aria-pressed="${t==='create'}">Crea online</button>
     <button data-tab="join" aria-pressed="${t==='join'}">Entra</button>
   </div>
-  ${t==='local'?`
-    <section class="panel"><h2 class="eyebrow">Giocatori</h2><div class="names">
-      ${[0,1].map(i=>`<label class="pfield" style="--pc:${PC[i]}"><span class="avatar" id="av${i}">${esc(initial(home.names[i],i))}</span><input id="n${i}" value="${esc(home.names[i])}" aria-label="Nome giocatore ${i+1}" maxlength="14" autocomplete="off"></label>`).join('')}
-    </div><p class="note">Giocate passandovi questo telefono.</p></section>
-    ${decksBlock()}
+  ${t==='local'?`${playersBlock()}${decksBlock()}
     <button class="cta" id="go">Inizia la partita ${I.arrow}</button>`:''}
   ${t==='create'?`
     <section class="panel"><h2 class="eyebrow">Come ti chiami?</h2>${meField()}
-      <p class="note">Riceverai un codice da dare all'altro giocatore. Ognuno gioca dal suo telefono.</p></section>
+      <p class="note">Riceverai un codice da dare agli altri: fino a 6 giocatori, ognuno dal suo telefono. Avvii tu la partita quando ci sono tutti.</p></section>
     ${decksBlock()}
     <button class="cta" id="go">Crea la partita ${I.arrow}</button>`:''}
   ${t==='join'?`
@@ -415,7 +469,9 @@ function viewHome(){
   $$('[data-tab]').forEach(b=>b.onclick=()=>{home.tab=b.dataset.tab;err='';viewHome()});
   $$('[data-k]').forEach(el=>el.onchange=()=>{home.decks[+el.dataset.k]=el.checked});
   $$('[data-t]').forEach(el=>el.onclick=()=>{home.target=+el.dataset.t;$$('[data-t]').forEach(b=>b.setAttribute('aria-pressed',b===el))});
-  if($('#n0'))[0,1].forEach(i=>$('#n'+i).oninput=e=>{home.names[i]=e.target.value;$('#av'+i).textContent=initial(e.target.value,i)});
+  for(let i=0;i<home.count;i++){const inp=$('#n'+i);if(inp)inp.oninput=e=>{home.names[i]=e.target.value;$('#av'+i).textContent=initial(e.target.value,i)}}
+  if($('#minus'))$('#minus').onclick=()=>{if(home.count>2){home.count--;viewHome()}};
+  if($('#plus'))$('#plus').onclick=()=>{if(home.count<MAXP){home.count++;viewHome();const n=$('#n'+(home.count-1));if(n)n.focus()}};
   if($('#me'))$('#me').oninput=e=>{home.myname=e.target.value;ls.set('hs-myname',home.myname);$('#avme').textContent=initial(e.target.value,0)};
   if($('#code'))$('#code').oninput=e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z]/g,'');home.code=e.target.value};
   if($('#resumeLoc'))$('#resumeLoc').onclick=()=>{MODE='local';G=loc;render();window.scrollTo(0,0)};
@@ -426,25 +482,45 @@ function viewHome(){
   $('#go').onclick=()=>{err='';if(t==='local')startLocal();else if(t==='create')createRoom();else joinByCode()};
 }
 function needDeck(){if(!home.decks.some(Boolean)){err='Scegli almeno un mazzo.';viewHome();return false}return true}
-function startLocal(){if(!needDeck())return;MODE='local';G=newGame(home.names.map((n,i)=>n.trim()||(i?'Carla':'Gabri')),home.decks,home.target);saveLocal();render();window.scrollTo(0,0);if(G.note)toast(G.note)}
+function startLocal(){
+  if(!needDeck())return;
+  const names=Array.from({length:home.count},(_,i)=>cleanName(home.names[i],i));
+  MODE='local';G=newGame(names,home.decks,home.target);saveLocal();render();window.scrollTo(0,0);if(G.note)toast(G.note);
+}
 async function createRoom(){
-  if(!needDeck())return; const me=(home.myname||'').trim()||'Gabri';
+  if(!needDeck())return; const me=cleanName(home.myname,0);
   const go=$('#go');go.disabled=true;go.textContent='Creo la partita…';
   await syncPlayed();
-  const g=newGame([me,'…'],home.decks,home.target); g.joined=[true,false];
-  try{const r=await fetch('/api/room',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({op:'create',state:g})});if(!r.ok)throw 0;
-    const j=await r.json(); enterOnline(j.state,0);
-  }catch(e){err='Non riesco a creare la partita: controlla la connessione.';viewHome()}
+  const lobby={lobby:true,names:[me],decks:home.decks.slice(),target:home.target};
+  try{const {ok,j}=await post({op:'create',state:lobby});if(!ok||!j)throw 0;enterOnline(j.state,0)}
+  catch(e){err='Non riesco a creare la partita: controlla la connessione.';viewHome()}
 }
 async function joinByCode(){
-  const code=(home.code||'').toUpperCase(), me=(home.myname||'').trim()||'Carla';
+  const code=(home.code||'').toUpperCase(), me=cleanName(home.myname,1);
   if(!/^[A-Z]{4}$/.test(code)){err='Il codice ha 4 lettere.';viewHome();return}
   const go=$('#go');go.disabled=true;go.textContent='Mi collego…';
-  try{const r=await fetch('/api/room?code='+code,{cache:'no-store'});if(r.status===404){err='Nessuna partita con questo codice.';viewHome();return}if(!r.ok)throw 0;
-    const j=await r.json(); G=j.state; VER=G.v; CODE=code; SEAT=1; MODE='online';
-    await commit(d=>{d.joined=[true,true];d.p[1].name=me});
-    ls.set('hs-online',{code,seat:1}); startPoll(); window.scrollTo(0,0);
-  }catch(e){err='Non riesco a collegarmi: controlla la connessione.';viewHome()}
+  try{
+    const r=await fetch('/api/room?code='+code,{cache:'no-store'});
+    if(r.status===404){err='Nessuna partita con questo codice.';viewHome();return}
+    if(!r.ok)throw 0;
+    const j=await r.json(); G=j.state; VER=G.v; CODE=code; MODE='online';
+    const names=G.lobby?G.names:G.p.map(p=>p.name);
+    const again=names.findIndex(n=>n.toLowerCase()===me.toLowerCase());
+    if(again>=0){SEAT=again}                       /* rientro con lo stesso nome */
+    else if(!G.lobby){MODE=null;G=null;err='La partita è già iniziata: per rientrare usa lo stesso nome di prima.';viewHome();return}
+    else{
+      let seat=null,full=false;
+      await commitRetry(d=>{
+        const k=d.names.findIndex(n=>n.toLowerCase()===me.toLowerCase());
+        if(k>=0){seat=k;return}
+        if(!d.lobby||d.names.length>=MAXP){full=true;return}
+        d.names.push(me);seat=d.names.length-1;
+      });
+      if(full&&seat===null){const msg=!G.lobby?'La partita è già iniziata: per rientrare usa lo stesso nome di prima.':'La partita è piena: al massimo 6 giocatori.';MODE=null;G=null;err=msg;viewHome();return}
+      SEAT=seat;
+    }
+    ls.set('hs-online',{code,seat:SEAT}); startPoll(); render(); window.scrollTo(0,0);
+  }catch(e){MODE=null;G=null;err='Non riesco a collegarmi: controlla la connessione.';viewHome()}
 }
 async function joinRoom(code,seat){
   try{const r=await fetch('/api/room?code='+code,{cache:'no-store'});if(!r.ok){ls.del('hs-online');err='La partita non esiste più.';viewHome();return}
@@ -452,6 +528,10 @@ async function joinRoom(code,seat){
   }catch(e){err='Connessione assente.';viewHome()}
 }
 function enterOnline(state,seat){G=state;VER=G.v;CODE=G.code;SEAT=seat;MODE='online';ls.set('hs-online',{code:CODE,seat});startPoll();render();window.scrollTo(0,0)}
+function startFromLobby(){
+  if(G.names.length<2)return;
+  commit(d=>{const g=newGame(d.names.slice(),d.decks,d.target);for(const k of Object.keys(d))delete d[k];Object.assign(d,g,{lobby:false})});
+}
 
 /* ---------- partita ---------- */
 function topbar(){
@@ -459,7 +539,8 @@ function topbar(){
   return `<div class="topbar"><span class="mini-logo grad-text">HITSTER</span><span class="topbar-r">${online?`<span class="pill">Partita ${esc(CODE)}</span>`:''}<button class="btn-ghost sm" id="menu">${online?'Esci':'Menu'}</button></span></div>`;
 }
 function scoreboard(){
-  return `<div class="board">${G.p.map((p,i)=>{const pct=Math.min(1,p.tl.length/G.target),on=G.over?G.winner===i:G.cur===i;
+  const many=G.p.length===3||G.p.length>=5;
+  return `<div class="board ${many?'many':''}">${G.p.map((p,i)=>{const pct=Math.min(1,p.tl.length/G.target),on=G.over?G.winner===i:G.cur===i;
     return `<div class="pchip ${on?'on':''}" style="--pc:${PC[i]}">
       <span class="ring"><svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="19" class="trk"/><circle cx="22" cy="22" r="19" class="val" style="stroke-dashoffset:${(119.4*(1-pct)).toFixed(1)}"/></svg>${esc(initial(p.name,i))}</span>
       <span class="pmeta"><b>${esc(p.name)}${MODE==='online'&&i===SEAT?'<span class="pill">tu</span>':''}</b><span class="prow"><span class="mono">${p.tl.length}/${G.target}</span><span class="tok" title="Gettoni">${I.coin}<span class="mono">${p.tok}</span></span></span></span></div>`}).join('')}</div>`;
@@ -482,35 +563,47 @@ function timeline(p,interactive,hl){
 function rail(p,title,interactive,hl,i){
   return `<section class="rail-wrap" style="--pc:${PC[i]}"><div class="rail-head"><h2 class="eyebrow">${title}</h2><span class="mono muted">${p.tl.length} ${p.tl.length===1?'carta':'carte'}</span></div>${timeline(p,interactive,hl)}</section>`;
 }
+function ranking(){
+  const order=G.p.map((p,i)=>({p,i})).sort((a,b)=>b.p.tl.length-a.p.tl.length||b.p.tok-a.p.tok);
+  return `<section class="panel"><h2 class="eyebrow">Classifica</h2><ol class="rank">${order.map(({p,i},k)=>`<li style="--pc:${PC[i]}"><span class="pos mono">${k+1}</span><span class="avatar">${esc(initial(p.name,i))}</span><b>${esc(p.name)}</b><span class="mono">${p.tl.length} carte</span></li>`).join('')}</ol></section>`;
+}
 function bindMenu(){
   $('#menu').onclick=()=>{
-    if(MODE==='online'){if(confirm('Uscire dalla partita online? Potrai rientrare con il codice '+CODE+'.')){stopPoll();MODE=null;G=null;viewHome();window.scrollTo(0,0)}}
+    if(MODE==='online'){if(confirm('Uscire dalla partita online? Potrai rientrare con il codice '+CODE+' e lo stesso nome.')){stopPoll();MODE=null;G=null;viewHome();window.scrollTo(0,0)}}
     else{MODE=null;G=null;viewHome();window.scrollTo(0,0)}
   };
 }
+function viewLobby(){
+  const host=SEAT===0, n=G.names.length;
+  $('#app').innerHTML=`${topbar()}
+  <section class="panel waiting"><p class="eyebrow">Sala d'attesa</p><h1>${host?'Dai questo codice agli altri':'Sei dentro!'}</h1>
+    <div class="bigcode" aria-label="Codice ${esc(CODE)}">${[...CODE].map(c=>`<span>${esc(c)}</span>`).join('')}</div>
+    <p class="note">${host?'Aprono l\'app, toccano <b>Entra</b> e inseriscono il codice.':'Altri possono entrare con lo stesso codice.'}</p></section>
+  <section class="panel"><div class="panel-head"><h2 class="eyebrow">Giocatori</h2><span class="mono muted">${n} / ${MAXP}</span></div>
+    <ol class="lobby">${G.names.map((nm,i)=>`<li style="--pc:${PC[i]}"><span class="avatar">${esc(initial(nm,i))}</span><b>${esc(nm)}</b>${i===0?'<span class="pill">crea</span>':''}${i===SEAT?'<span class="pill me">tu</span>':''}</li>`).join('')}
+      ${n<MAXP?`<li class="empty"><span class="avatar">+</span><span>In attesa…</span></li>`:''}</ol></section>
+  ${host?`<div class="dock"><button class="cta" id="begin" ${n<2?'disabled':''}>${n<2?'Serve almeno un altro giocatore':'Inizia la partita con '+n+' giocatori '+I.arrow}</button></div>`
+        :`<div class="waitline playing">${eq(9)}<span>In attesa che ${esc(G.names[0])} avvii la partita…</span></div>`}`;
+  $('#menu').onclick=leave;
+  if($('#begin'))$('#begin').onclick=startFromLobby;
+}
 function render(){
   if(!G){viewHome();return}
-  const online=MODE==='online', p=G.p[G.cur], other=G.p[1-G.cur];
-  const mine=!online||G.cur===SEAT;
-  const gameKey=(CODE||'L')+':'+G.p[0].tl[0]+':'+G.p[1].tl[0];
+  const online=MODE==='online';
   if(err){toast(err);err=''}
+  if(online&&G.lobby){viewLobby();return}
 
-  if(online&&!(G.joined&&G.joined[1])){
-    $('#app').innerHTML=`${topbar()}
-    <section class="panel waiting"><p class="eyebrow">Partita creata</p><h1>Dai questo codice all'altro giocatore</h1>
-      <div class="bigcode" aria-label="Codice ${esc(CODE)}">${[...CODE].map(c=>`<span>${esc(c)}</span>`).join('')}</div>
-      <p class="note">Apre l'app, tocca <b>Entra</b> e inserisce il codice.</p>
-      <div class="waitline playing">${eq(9)}<span>In attesa che entri…</span></div></section>`;
-    $('#menu').onclick=leave;return;
-  }
-
+  const p=G.p[G.cur], nx=nextOf(G,G.cur), dj=G.p[nx];
+  const mine=!online||G.cur===SEAT, amDJ=online&&SEAT===nx;
+  const gameKey=(CODE||'L')+':'+G.p.map(q=>q.tl[0]).join('.');
   const cardKey=gameKey+':'+G.card+':'+G.cur;
+
   if(G.over&&!(G.phase==='reveal'&&winSeen!==cardKey&&G.winner===G.cur&&G.lastOk&&G.p[G.cur].tl.length>=G.target)){
     const w=G.p[G.winner],full=w.tl.length>=G.target;
     $('#app').innerHTML=`${topbar()}
     <section class="win" style="--pc:${PC[G.winner]}">${disc()}<p class="eyebrow">Fine partita</p><h1 class="who-big">${esc(w.name)}</h1><p class="win-sub">vince!</p>
       <p class="lead">${full?G.target+' carte al posto giusto.':'Mazzo finito: vince chi ha più carte.'}</p></section>
-    ${scoreboard()}${rail(w,'La linea del tempo di '+esc(w.name),false,null,G.winner)}
+    ${G.p.length>2?ranking():scoreboard()}${rail(w,'La linea del tempo di '+esc(w.name),false,null,G.winner)}
     <div class="dock"><button class="cta" id="again">Nuova partita ${I.arrow}</button></div>`;
     bindMenu();
     $('#again').onclick=()=>{if(MODE==='local')ls.del('hs-local');leave()};
@@ -526,15 +619,21 @@ function render(){
     if(mine){
       const deal=dealt!==cardKey;dealt=cardKey;
       body=`${turn}${cardHTML(G.card,false,deal)}
-      ${online?`<p class="hint">La canzone parte dal telefono di ${esc(other.name)}. Ascolta e scegli dove metterla.</p>`:`${spotify}<p class="hint">Fai partire la canzone e gira subito lo schermo: Spotify mostra il titolo. Meglio se la avvia l'altro giocatore.</p>`}
+      ${online?`<p class="hint">La canzone parte dal telefono di ${esc(dj.name)}. Ascolta e scegli dove metterla.</p>`:`${spotify}<p class="hint">Fai partire la canzone e gira subito lo schermo: Spotify mostra il titolo. Meglio se la avvia ${esc(dj.name)}.</p>`}
       ${rail(p,'Dove la metti?',true,null,G.cur)}
       <div class="extras">${p.tok>=3?`<button class="chip gold" id="spend">${I.coin} Usa 3 gettoni: carta gratis</button>`:''}${online?'':`<button class="link" id="skip">Non parte? Cambia canzone</button>`}</div>
       <div class="dock"><button class="cta" id="place" ${G.slot===null?'disabled':''}>${G.slot===null?'Tocca un + nella linea':'Metti qui la carta '+I.arrow}</button></div>`;
-    } else {
+    } else if(amDJ){
       body=`${turn}
       <section class="panel dj" id="stage"><p class="eyebrow">Sei il DJ</p><h2>Fai partire la canzone</h2>${spotify}
         <p class="note">Tieni lo schermo lontano da ${esc(p.name)}: Spotify mostra il titolo.</p>
         <button class="link" id="skip">Non parte? Cambia canzone</button></section>
+      ${rail(p,'La linea del tempo di '+esc(p.name),false,null,G.cur)}
+      <div class="waitline playing">${eq(9)}<span>${esc(p.name)} sta scegliendo dove metterla…</span></div>`;
+    } else {
+      body=`${turn}
+      <section class="panel dj watch"><p class="eyebrow">Ascolta anche tu</p><h2>${esc(dj.name)} fa partire la canzone</h2>
+        <p class="note">Non dire niente: ${esc(p.name)} deve indovinare l'anno. Tra poco tocca a te.</p></section>
       ${rail(p,'La linea del tempo di '+esc(p.name),false,null,G.cur)}
       <div class="waitline playing">${eq(9)}<span>${esc(p.name)} sta scegliendo dove metterla…</span></div>`;
     }
@@ -545,7 +644,7 @@ function render(){
     ${cardHTML(G.card,true,false)}
     ${G.free?'':`<div class="extras"><button class="chip" id="guess" aria-pressed="${!!G.guessed}">${I.coin} ${G.guessed?'Titolo e artista indovinati: +1 gettone':'Titolo e artista indovinati?'}</button></div>`}
     ${rail(p,'La linea del tempo di '+esc(p.name),false,ok?G.card:null,G.cur)}
-    <div class="dock"><button class="cta player" id="next" style="--pc:${PC[toWin?G.winner:1-G.cur]}">${toWin?'Vedi chi ha vinto':'Tocca a '+esc(other.name)} ${I.arrow}</button></div>`;
+    <div class="dock"><button class="cta player" id="next" style="--pc:${PC[toWin?G.winner:nx]}">${toWin?'Vedi chi ha vinto':'Tocca a '+esc(dj.name)} ${I.arrow}</button></div>`;
   }
   $('#app').innerHTML=`${topbar()}${scoreboard()}${body}`;
   bindMenu();
