@@ -360,6 +360,9 @@ svg{display:block}
 .enter .who-big{animation:winIn .9s cubic-bezier(.3,1.5,.5,1) .15s both}
 @keyframes winIn{from{opacity:0;transform:scale(.4)}}
 
+.deck.wide{grid-column:1/-1}
+.deck.wide .tile{min-height:0}
+.new-badge{display:inline-block;margin-left:8px;padding:3px 7px;border-radius:999px;font:700 .58rem/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;vertical-align:3px;background:var(--c);color:var(--deep)}
 @media (max-width:360px){.names,.decks{grid-template-columns:1fr}.pmeta b{font-size:.9rem}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.001ms!important}.vinyl{animation:spin 3.6s linear infinite!important}.mnote,.ripple,.fx{display:none}}
 </style>
@@ -370,7 +373,7 @@ svg{display:block}
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="/data.js"></script>
 <script>
-const DECKS=[{n:"Mazzo base",d:"Hit dal 2000 a oggi",c:"var(--b3)"},{n:"Estate & Sanremo",d:"Tormentoni e Festival",c:"var(--gold)"},{n:"Rap, indie & internazionali",d:"Dal rap italiano alle hit estere",c:"var(--b2)"},{n:"Classici & novità",d:"Cantautori, band e ultimi Sanremo",c:"var(--b4)"}];
+const DECKS=[{n:"Mazzo base",d:"Hit dal 2000 a oggi",c:"var(--b3)"},{n:"Estate & Sanremo",d:"Tormentoni e Festival",c:"var(--gold)"},{n:"Rap, indie & internazionali",d:"Dal rap italiano alle hit estere",c:"var(--b2)"},{n:"Classici & novità",d:"Cantautori, band e ultimi Sanremo",c:"var(--b4)"},{n:"Teenage Dream",d:"Disney e Pixar, High School Musical, Hannah Montana e Disney Channel",c:"var(--b0)",isNew:true}];
 const BANDS=[[2004,'var(--b0)'],[2009,'var(--b1)'],[2014,'var(--b2)'],[2019,'var(--b3)'],[2022,'var(--b4)'],[2099,'var(--b5)']];
 const MAXP=6;
 const PC=['var(--p1)','var(--p2)','var(--p3)','var(--p4)','var(--p5)','var(--p6)'];
@@ -484,7 +487,7 @@ function doNext(G){if(G.over)return;G.cur=nextOf(G,G.cur);if(!G.pool.length){G.o
 let MODE=null;        // 'local' | 'online'
 let G=null;           // partita (o sala d'attesa, se G.lobby)
 let SEAT=null, CODE=null, VER=0, poll=null, busy=false, err='';
-let home={tab:'local',count:2,names:DEFAULT_NAMES.slice(),decks:[true,true,true,true],target:10,myname:ls.get('hs-myname')||'',code:''};
+let home={tab:'local',count:2,names:DEFAULT_NAMES.slice(),decks:DECKS.map(()=>true),target:10,myname:ls.get('hs-myname')||'',code:''};
 let confirmReset=false, dealt='', lastFlipKey='', winSeen='', winFx='', lastTurnKey='', prevTab='local', lastCount=2;
 const prevPct={}, prevTok={}, seenLobby=new Set();
 const TABS=['local','create','join'];
@@ -529,9 +532,9 @@ function leave(){stopPoll();MODE=null;G=null;CODE=null;SEAT=null;ls.del('hs-onli
 
 /* ---------- schermata iniziale ---------- */
 function decksBlock(){
-  const counts=[0,1,2,3].map(k=>DATA.filter(d=>d[4]===k).length);
+  const counts=DECKS.map((_,k)=>DATA.filter(d=>d[4]===k).length);
   return `<section class="panel"><h2 class="eyebrow">Mazzi</h2><div class="decks">
-    ${DECKS.map((d,k)=>`<label class="deck" style="--c:${d.c}"><input type="checkbox" id="deck${k}" data-k="${k}" ${home.decks[k]?'checked':''}><span class="tile"><span class="tick">${I.check}</span><b>${d.n}</b><small>${d.d}</small><span class="count mono">${fresh(k)}<span> / ${counts[k]} nuove</span></span></span></label>`).join('')}
+    ${DECKS.map((d,k)=>`<label class="deck ${d.isNew?'wide':''}" style="--c:${d.c}"><input type="checkbox" id="deck${k}" data-k="${k}" ${home.decks[k]?'checked':''}><span class="tile"><span class="tick">${I.check}</span><b>${d.n}${d.isNew?'<span class="new-badge">Nuovo</span>':''}</b><small>${d.d}</small><span class="count mono">${fresh(k)}<span> / ${counts[k]} nuove</span></span></span></label>`).join('')}
   </div></section>
   <section class="panel"><h2 class="eyebrow">Carte per vincere</h2><div class="seg">
     ${[[6,'Veloce'],[10,'Classica'],[14,'Maratona']].map(([n,l])=>`<button data-t="${n}" aria-pressed="${home.target===n}"><b>${n}</b><small>${l}</small></button>`).join('')}</div></section>`;
