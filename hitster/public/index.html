@@ -363,6 +363,58 @@ svg{display:block}
 .deck.wide{grid-column:1/-1}
 .deck.wide .tile{min-height:0}
 .new-badge{display:inline-block;margin-left:8px;padding:3px 7px;border-radius:999px;font:700 .58rem/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;vertical-align:3px;background:var(--c);color:var(--deep)}
+/* scelta canzoni per mazzo */
+.decks{grid-template-columns:repeat(2,minmax(0,1fr))}
+.deckbox{position:relative;min-width:0}
+.deckbox .tile{min-width:0}
+.deckbox .tile small{overflow-wrap:anywhere}
+.deckbox.wide{grid-column:1/-1}
+.deckbox.wide .tile{min-height:0}
+.deckbox .deck{height:100%}
+.deckbox .tick{top:auto;bottom:14px;right:14px}
+.deckbox .tile b{padding-right:40px}
+.deckbox .count{padding-right:32px}
+.gear{position:absolute;z-index:2;top:7px;right:7px;width:38px;height:38px;border-radius:12px;border:1.5px solid var(--line);background:color-mix(in oklab,var(--bg) 55%,transparent);color:var(--ink);display:grid;place-items:center;transition:transform .3s cubic-bezier(.3,1.5,.5,1),border-color .2s,background .2s}
+.gear svg{width:20px;height:20px}
+.gear:hover{border-color:var(--c);transform:rotate(45deg)}
+.gear:active{transform:rotate(90deg) scale(.92)}
+.custom{display:inline-flex;align-self:flex-start;margin-top:4px;padding:3px 8px;border-radius:999px;font:700 .64rem/1.2 var(--f-mono);letter-spacing:.06em;color:var(--c);background:color-mix(in oklab,var(--c) 16%,transparent)}
+body.locked{overflow:hidden}
+.sheet-wrap{position:fixed;inset:0;z-index:30;display:flex;align-items:flex-end;justify-content:center}
+.sheet-scrim{position:absolute;inset:0;background:rgba(5,3,14,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;transition:opacity .28s}
+.sheet{position:relative;width:100%;max-width:560px;height:min(92%,860px);display:flex;flex-direction:column;background:linear-gradient(180deg,color-mix(in oklab,var(--c) 14%,#18123A),#0F0B23 40%);border:1px solid var(--line);border-bottom:0;border-radius:26px 26px 0 0;box-shadow:0 -20px 60px -20px rgba(0,0,0,.9);transform:translateY(100%);transition:transform .32s cubic-bezier(.2,.9,.3,1);padding-bottom:env(safe-area-inset-bottom,0px)}
+.sheet-wrap.open .sheet{transform:none}
+.sheet-wrap.open .sheet-scrim{opacity:1}
+.sheet-head{display:flex;flex-direction:column;gap:12px;padding:18px 16px 12px;border-bottom:1px solid var(--line)}
+.sheet-head::before{content:"";align-self:center;width:40px;height:4px;border-radius:2px;background:var(--line);margin:-8px 0 2px}
+.sheet-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.sheet-top h2{font:1.5rem/1.05 var(--f-display);font-weight:400;margin:4px 0 0;color:var(--c)}
+.sheet-meter{display:flex;flex-direction:column;gap:6px;font-size:.85rem}
+.sheet-meter .bar i{background:var(--c);transition:width .3s}
+.search{display:flex;align-items:center;gap:10px;padding:0 14px;border-radius:14px;background:var(--glass-2);border:1.5px solid transparent}
+.search:focus-within{border-color:var(--c)}
+.search svg{width:18px;height:18px;color:var(--muted);flex:none}
+.search input{flex:1;min-width:0;border:0;background:transparent;padding:12px 0;font-size:1rem;outline:none}
+.eras{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px}
+.eras::-webkit-scrollbar{display:none}
+.eras .chip{flex:none;padding:7px 13px;font-size:.82rem}
+.eras .chip[aria-pressed="true"]{border-color:var(--c);background:color-mix(in oklab,var(--c) 18%,transparent);color:var(--ink)}
+.sheet-tools{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.82rem}
+.sheet-tools .link{padding:4px 6px}
+.songlist{list-style:none;margin:0;padding:10px 12px 20px;display:flex;flex-direction:column;gap:6px;overflow-y:auto;overscroll-behavior:contain;flex:1}
+.srow{position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:var(--glass);border:1.5px solid transparent;cursor:pointer}
+.srow input{position:absolute;opacity:0;width:1px;height:1px}
+.srow .box{width:24px;height:24px;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;color:transparent;transition:background .15s,border-color .15s}
+.srow .box svg{width:15px;height:15px}
+.srow input:checked~.box{background:var(--c);border-color:var(--c);color:var(--deep)}
+.srow:has(input:checked){border-color:color-mix(in oklab,var(--c) 45%,transparent)}
+.srow:not(:has(input:checked)) .txt{opacity:.55}
+.srow input:focus-visible~.box{outline:3px solid var(--gold);outline-offset:2px}
+.srow .txt{min-width:0;display:flex;flex-direction:column;gap:1px}
+.srow .txt b{font-weight:700;line-height:1.25;overflow-wrap:anywhere}
+.srow .txt small{color:var(--muted);font-size:.8rem}
+.srow .yr{font-size:.8rem;font-weight:700;padding:4px 8px;border-radius:999px;background:var(--glass-2);color:var(--muted)}
+.empty-list{padding:28px 8px;text-align:center;color:var(--muted)}
 @media (max-width:360px){.names,.decks{grid-template-columns:1fr}.pmeta b{font-size:.9rem}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.001ms!important}.vinyl{animation:spin 3.6s linear infinite!important}.mnote,.ripple,.fx{display:none}}
 </style>
@@ -395,8 +447,10 @@ const I={
   check:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   x:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>',
   arrow:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  get gear(){return GEAR_SVG},
   coin:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="var(--gold)"/><circle cx="12" cy="12" r="5.5" fill="none" stroke="var(--deep)" stroke-opacity=".35" stroke-width="2"/></svg>'
 };
+const GEAR_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.6-2-3.4-2.4 1a7.5 7.5 0 0 0-2.6-1.5L14 2.5h-4l-.4 2.5A7.5 7.5 0 0 0 7 6.5l-2.4-1-2 3.4 2 1.6a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4 2.4-1a7.5 7.5 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.5 7.5 0 0 0 2.6-1.5l2.4 1 2-3.4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
 const disc=()=>'<div class="disc" aria-hidden="true"><div class="vinyl"><div class="disc-label"></div></div></div>';
 const NOTE='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18.2a3.2 3.2 0 1 1-2-2.97V5.2l12-2.6v12.6a3.2 3.2 0 1 1-2-2.97V7.4L9 9.1z" fill="currentColor"/></svg>';
 const ARM='<svg class="tonearm" viewBox="0 0 200 200" aria-hidden="true"><path class="rod" d="M132 -14 L96 20 L80 34"/><circle class="base" cx="132" cy="-14" r="11"/><circle class="pin" cx="132" cy="-14" r="3.5"/><rect class="head" x="73" y="27" width="13" height="18" rx="3" transform="rotate(46 80 36)"/></svg>';
@@ -460,11 +514,24 @@ async function syncPlayed(extra){
 }
 function markPlayed(i){const id=DATA[i][0];PLAYED.add(id);pendingAdd.add(id);ls.set('hs-played',[...PLAYED]);ls.set('hs-pending',[...pendingAdd]);syncPlayed()}
 function unmarkPlayed(i){const id=DATA[i][0];PLAYED.delete(id);pendingAdd.delete(id);ls.set('hs-played',[...PLAYED]);ls.set('hs-pending',[...pendingAdd]);syncPlayed({remove:[id]})}
-const fresh=k=>DATA.filter(d=>d[4]===k&&!PLAYED.has(d[0])).length;
+/* ---------- canzoni scelte per ogni mazzo (salvate sul telefono: si salvano le escluse) ---------- */
+let EXCL=new Set(ls.get('hs-excluded')||[]);
+const saveExcl=()=>ls.set('hs-excluded',[...EXCL]);
+const chosen=k=>DATA.filter(d=>d[4]===k&&!EXCL.has(d[0])).length;
+const fresh=k=>DATA.filter(d=>d[4]===k&&!EXCL.has(d[0])&&!PLAYED.has(d[0])).length;
+/* quante canzoni ci sono con i mazzi accesi: servono almeno giocatori×obiettivo carte per non finire il mazzo */
+const poolSize=decks=>DATA.filter(d=>decks[d[4]]&&!EXCL.has(d[0])).length;
+let startAnyway=false;
+function shortDeckMsg(players,target,decks){
+  const n=poolSize(decks),need=players*target;
+  if(n<players+1)return {block:true,msg:`Con i mazzi e le canzoni scelte ci sono solo ${n} canzoni: non bastano per iniziare. Aggiungine qualcuna con l'ingranaggio.`};
+  if(n<need)return {block:false,msg:`Ci sono ${n} canzoni: con ${players} giocatori e ${target} carte per vincere il mazzo potrebbe finire prima. In quel caso vince chi ha più carte.`};
+  return null;
+}
 
 /* ---------- logica di gioco (uguale per 1 o più telefoni) ---------- */
 function newGame(names,decks,target){
-  const sel=DATA.map((d,i)=>i).filter(i=>decks[DATA[i][4]]);
+  const sel=DATA.map((d,i)=>i).filter(i=>decks[DATA[i][4]]&&!EXCL.has(DATA[i][0]));
   let avail=sel.filter(i=>!PLAYED.has(DATA[i][0])),note='';
   if(avail.length<target*2*names.length){avail=sel;note='Avevate ascoltato quasi tutte le canzoni dei mazzi scelti: le ho rimesse in gioco.';syncPlayed({remove:sel.map(i=>DATA[i][0])});sel.forEach(i=>PLAYED.delete(DATA[i][0]))}
   const pool=shuffle(avail);
@@ -534,7 +601,9 @@ function leave(){stopPoll();MODE=null;G=null;CODE=null;SEAT=null;ls.del('hs-onli
 function decksBlock(){
   const counts=DECKS.map((_,k)=>DATA.filter(d=>d[4]===k).length);
   return `<section class="panel"><h2 class="eyebrow">Mazzi</h2><div class="decks">
-    ${DECKS.map((d,k)=>`<label class="deck ${d.isNew?'wide':''}" style="--c:${d.c}"><input type="checkbox" id="deck${k}" data-k="${k}" ${home.decks[k]?'checked':''}><span class="tile"><span class="tick">${I.check}</span><b>${d.n}${d.isNew?'<span class="new-badge">Nuovo</span>':''}</b><small>${d.d}</small><span class="count mono">${fresh(k)}<span> / ${counts[k]} nuove</span></span></span></label>`).join('')}
+    ${DECKS.map((d,k)=>{const ch=chosen(k),custom=ch<counts[k];
+      return `<div class="deckbox ${d.isNew?'wide':''}" style="--c:${d.c}"><label class="deck"><input type="checkbox" id="deck${k}" data-k="${k}" ${home.decks[k]?'checked':''}><span class="tile"><span class="tick">${I.check}</span><b>${d.n}${d.isNew?'<span class="new-badge">Nuovo</span>':''}</b><small>${d.d}</small>${custom?`<span class="custom">Hai scelto ${ch} di ${counts[k]}</span>`:''}<span class="count mono">${fresh(k)}<span> / ${ch} nuove</span></span></span></label>
+      <button class="gear" data-gear="${k}" aria-label="Scegli le canzoni di ${esc(d.n)}">${I.gear}</button></div>`}).join('')}
   </div></section>
   <section class="panel"><h2 class="eyebrow">Carte per vincere</h2><div class="seg">
     ${[[6,'Veloce'],[10,'Classica'],[14,'Maratona']].map(([n,l])=>`<button data-t="${n}" aria-pressed="${home.target===n}"><b>${n}</b><small>${l}</small></button>`).join('')}</div></section>`;
@@ -596,7 +665,9 @@ function viewHome(){
   requestAnimationFrame(()=>{const ind=$('#tabind');if(ind)ind.style.setProperty('--x',TABS.indexOf(t))});prevTab=t;
   lastCount=home.count;
   $$('[data-tab]').forEach(b=>b.onclick=()=>{home.tab=b.dataset.tab;err='';viewHome()});
-  $$('[data-k]').forEach(el=>el.onchange=()=>{home.decks[+el.dataset.k]=el.checked});
+  $$('[data-k]').forEach(el=>el.onchange=()=>{home.decks[+el.dataset.k]=el.checked;startAnyway=false});
+  $$('[data-gear]').forEach(b=>b.onclick=()=>openSongs(+b.dataset.gear));
+  $$('[data-t]').forEach(el=>el.addEventListener('click',()=>{startAnyway=false}));
   $$('[data-t]').forEach(el=>el.onclick=()=>{home.target=+el.dataset.t;$$('[data-t]').forEach(b=>b.setAttribute('aria-pressed',b===el))});
   for(let i=0;i<home.count;i++){const inp=$('#n'+i);if(inp)inp.oninput=e=>{home.names[i]=e.target.value;$('#av'+i).textContent=initial(e.target.value,i)}}
   if($('#minus'))$('#minus').onclick=()=>{if(home.count>2){home.count--;viewHome()}};
@@ -610,10 +681,60 @@ function viewHome(){
   if($('#yes'))$('#yes').onclick=async()=>{PLAYED.clear();pendingAdd.clear();ls.set('hs-played',[]);ls.set('hs-pending',[]);confirmReset=false;await syncPlayed({reset:true});viewHome();toast('Tutte le canzoni sono di nuovo disponibili.')};
   $('#go').onclick=()=>{err='';if(t==='local')startLocal();else if(t==='create')createRoom();else joinByCode()};
 }
+/* ---------- pannello: scegli le canzoni di un mazzo ---------- */
+const ERAS=[['all','Tutte',()=>true],['old','Prima del 2000',y=>y<2000],['00','Anni 2000',y=>y>=2000&&y<2010],['10','Anni 2010',y=>y>=2010&&y<2020],['20','Anni 2020',y=>y>=2020]];
+let sheet=null;
+function openSongs(k){
+  const rows=DATA.filter(d=>d[4]===k).slice().sort((a,b)=>a[3]-b[3]||a[1].localeCompare(b[1],'it'));
+  const eras=ERAS.filter(([id,,f])=>id==='all'||rows.some(r=>f(r[3])));
+  sheet={k,rows,q:'',era:'all',lastFocus:document.activeElement};
+  const d=DECKS[k],el=document.createElement('div');
+  el.className='sheet-wrap';el.id='sheet';
+  el.innerHTML=`<div class="sheet-scrim" data-close></div>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" style="--c:${d.c}">
+    <header class="sheet-head">
+      <div class="sheet-top"><div><p class="eyebrow">Scegli le canzoni</p><h2 id="sheet-title">${esc(d.n)}</h2></div><button class="btn-solid sm" data-close>Fatto</button></div>
+      <div class="sheet-meter"><span id="sh-count" class="mono"></span><div class="bar"><i id="sh-bar"></i></div></div>
+      <label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="sh-q" type="search" placeholder="Cerca titolo o artista" autocomplete="off" aria-label="Cerca titolo o artista"></label>
+      <div class="eras" role="group" aria-label="Filtra per epoca">${eras.map(([id,l])=>`<button class="chip" data-era="${id}" aria-pressed="${id==='all'}">${l}</button>`).join('')}</div>
+      <div class="sheet-tools"><span id="sh-shown" class="muted"></span><span><button class="link" id="sh-all">Prendi tutte</button><button class="link" id="sh-none">Togli tutte</button></span></div>
+    </header>
+    <ul class="songlist" id="sh-list"></ul>
+  </section>`;
+  document.body.appendChild(el);document.body.classList.add('locked');
+  const visible=()=>{const q=sheet.q.trim().toLowerCase(),f=ERAS.find(e=>e[0]===sheet.era)[2];
+    return sheet.rows.filter(r=>f(r[3])&&(!q||r[1].toLowerCase().includes(q)||r[2].toLowerCase().includes(q)))};
+  const counts=()=>{const n=sheet.rows.filter(r=>!EXCL.has(r[0])).length,t=sheet.rows.length;
+    $('#sh-count').textContent=`${n} di ${t} scelte`;$('#sh-bar').style.width=(n/t*100).toFixed(1)+'%'};
+  const list=()=>{const v=visible();
+    $('#sh-shown').textContent=v.length===sheet.rows.length?`${v.length} canzoni`:`${v.length} di ${sheet.rows.length} mostrate`;
+    $('#sh-all').textContent=v.length===sheet.rows.length?'Prendi tutte':'Prendi queste';$('#sh-none').textContent=v.length===sheet.rows.length?'Togli tutte':'Togli queste';
+    $('#sh-list').innerHTML=v.length?v.map(r=>`<li><label class="srow"><input type="checkbox" data-sid="${r[0]}" ${EXCL.has(r[0])?'':'checked'}><span class="box">${I.check}</span><span class="txt"><b>${esc(r[1])}</b><small>${esc(r[2])}</small></span><span class="yr mono">${r[3]}</span></label></li>`).join('')
+      :`<li class="empty-list">Nessuna canzone corrisponde a «${esc(sheet.q)}».</li>`;
+    $$('[data-sid]').forEach(c=>c.onchange=()=>{c.checked?EXCL.delete(c.dataset.sid):EXCL.add(c.dataset.sid);saveExcl();counts()})};
+  counts();list();
+  $('#sh-q').oninput=e=>{sheet.q=e.target.value;list()};
+  $$('[data-era]').forEach(b=>b.onclick=()=>{sheet.era=b.dataset.era;$$('[data-era]').forEach(x=>x.setAttribute('aria-pressed',x===b));list()});
+  $('#sh-all').onclick=()=>{visible().forEach(r=>EXCL.delete(r[0]));saveExcl();counts();list()};
+  $('#sh-none').onclick=()=>{visible().forEach(r=>EXCL.add(r[0]));saveExcl();counts();list()};
+  $$('[data-close]').forEach(b=>b.onclick=closeSongs);
+  el.addEventListener('keydown',e=>{if(e.key==='Escape')closeSongs()});
+  requestAnimationFrame(()=>el.classList.add('open'));
+  setTimeout(()=>{const q=$('#sh-q');if(q&&matchMedia('(pointer:fine)').matches)q.focus();else $('.sheet [data-close].btn-solid').focus()},50);
+}
+function closeSongs(){
+  const el=$('#sheet');if(!el)return;
+  const back=sheet&&sheet.lastFocus;sheet=null;startAnyway=false;
+  el.classList.remove('open');document.body.classList.remove('locked');
+  setTimeout(()=>{el.remove();viewHome();const g=back&&back.dataset&&back.dataset.gear!=null?$(`[data-gear="${back.dataset.gear}"]`):null;if(g)g.focus()},reduced()?0:280);
+}
 function needDeck(){if(!home.decks.some(Boolean)){err='Scegli almeno un mazzo.';viewHome();return false}return true}
 function startLocal(){
   if(!needDeck())return;
   const names=Array.from({length:home.count},(_,i)=>cleanName(home.names[i],i));
+  const w=shortDeckMsg(names.length,home.target,home.decks);
+  if(w&&(w.block||!startAnyway)){err=w.msg;startAnyway=!w.block;viewHome();if(!w.block){const g=$('#go');g.innerHTML='Inizia lo stesso '+I.arrow}return}
+  startAnyway=false;
   MODE='local';G=newGame(names,home.decks,home.target);saveLocal();render();window.scrollTo(0,0);if(G.note)toast(G.note);
 }
 async function createRoom(){
@@ -659,6 +780,9 @@ async function joinRoom(code,seat){
 function enterOnline(state,seat){G=state;VER=G.v;CODE=G.code;SEAT=seat;MODE='online';ls.set('hs-online',{code:CODE,seat});startPoll();render();window.scrollTo(0,0)}
 function startFromLobby(){
   if(G.names.length<2)return;
+  const w=shortDeckMsg(G.names.length,G.target,G.decks);
+  if(w&&(w.block||!startAnyway)){startAnyway=!w.block;toast(w.msg);const b=$('#begin');if(b&&!w.block)b.innerHTML='Inizia lo stesso '+I.arrow;return}
+  startAnyway=false;
   commit(d=>{const g=newGame(d.names.slice(),d.decks,d.target);for(const k of Object.keys(d))delete d[k];Object.assign(d,g,{lobby:false})});
 }
 
