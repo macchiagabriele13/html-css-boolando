@@ -415,6 +415,14 @@ body.locked{overflow:hidden}
 .srow .txt small{color:var(--muted);font-size:.8rem}
 .srow .yr{font-size:.8rem;font-weight:700;padding:4px 8px;border-radius:999px;background:var(--glass-2);color:var(--muted)}
 .empty-list{padding:28px 8px;text-align:center;color:var(--muted)}
+/* filtro lingua */
+.langseg{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--glass-2);border:1px solid var(--line)}
+.langseg button{border:0;background:transparent;border-radius:999px;padding:6px 11px;font-weight:700;font-size:.76rem;color:var(--muted);transition:background .2s,color .2s}
+.langseg button[aria-pressed="true"]{background:var(--ink);color:var(--deep)}
+.deckbox.empty .tile{opacity:.4}
+.count.none{font:600 .78rem/1.3 var(--f-body);color:var(--muted);padding-right:32px}
+.langnote{margin:0;font-size:.8rem;line-height:1.45;color:var(--muted);padding:8px 12px;border-radius:12px;background:var(--glass)}
+.srow.offlang{opacity:.45}
 @media (max-width:360px){.names,.decks{grid-template-columns:1fr}.pmeta b{font-size:.9rem}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.001ms!important}.vinyl{animation:spin 3.6s linear infinite!important}.mnote,.ripple,.fx{display:none}}
 </style>
@@ -517,21 +525,24 @@ function unmarkPlayed(i){const id=DATA[i][0];PLAYED.delete(id);pendingAdd.delete
 /* ---------- canzoni scelte per ogni mazzo (salvate sul telefono: si salvano le escluse) ---------- */
 let EXCL=new Set(ls.get('hs-excluded')||[]);
 const saveExcl=()=>ls.set('hs-excluded',[...EXCL]);
-const chosen=k=>DATA.filter(d=>d[4]===k&&!EXCL.has(d[0])).length;
-const fresh=k=>DATA.filter(d=>d[4]===k&&!EXCL.has(d[0])&&!PLAYED.has(d[0])).length;
+/* filtro lingua: d[5] è 'i' (cantata in italiano) o 's' (straniera) */
+const LANGS=[['it','Italiane'],['st','Straniere'],['mix','Mix']];
+const langOk=(d,lang)=>!lang||lang==='mix'||(lang==='it'?d[5]==='i':d[5]==='s');
+const chosen=k=>DATA.filter(d=>d[4]===k&&!EXCL.has(d[0])&&langOk(d,home.lang)).length;
+const fresh=k=>DATA.filter(d=>d[4]===k&&!EXCL.has(d[0])&&langOk(d,home.lang)&&!PLAYED.has(d[0])).length;
 /* quante canzoni ci sono con i mazzi accesi: servono almeno giocatori×obiettivo carte per non finire il mazzo */
-const poolSize=decks=>DATA.filter(d=>decks[d[4]]&&!EXCL.has(d[0])).length;
+const poolSize=(decks,lang)=>DATA.filter(d=>decks[d[4]]&&!EXCL.has(d[0])&&langOk(d,lang)).length;
 let startAnyway=false;
-function shortDeckMsg(players,target,decks){
-  const n=poolSize(decks),need=players*target;
+function shortDeckMsg(players,target,decks,lang){
+  const n=poolSize(decks,lang),need=players*target;
   if(n<players+1)return {block:true,msg:`Con i mazzi e le canzoni scelte ci sono solo ${n} canzoni: non bastano per iniziare. Aggiungine qualcuna con l'ingranaggio.`};
   if(n<need)return {block:false,msg:`Ci sono ${n} canzoni: con ${players} giocatori e ${target} carte per vincere il mazzo potrebbe finire prima. In quel caso vince chi ha più carte.`};
   return null;
 }
 
 /* ---------- logica di gioco (uguale per 1 o più telefoni) ---------- */
-function newGame(names,decks,target){
-  const sel=DATA.map((d,i)=>i).filter(i=>decks[DATA[i][4]]&&!EXCL.has(DATA[i][0]));
+function newGame(names,decks,target,lang){
+  const sel=DATA.map((d,i)=>i).filter(i=>decks[DATA[i][4]]&&!EXCL.has(DATA[i][0])&&langOk(DATA[i],lang));
   let avail=sel.filter(i=>!PLAYED.has(DATA[i][0])),note='';
   if(avail.length<target*2*names.length){avail=sel;note='Avevate ascoltato quasi tutte le canzoni dei mazzi scelti: le ho rimesse in gioco.';syncPlayed({remove:sel.map(i=>DATA[i][0])});sel.forEach(i=>PLAYED.delete(DATA[i][0]))}
   const pool=shuffle(avail);
@@ -554,7 +565,7 @@ function doNext(G){if(G.over)return;G.cur=nextOf(G,G.cur);if(!G.pool.length){G.o
 let MODE=null;        // 'local' | 'online'
 let G=null;           // partita (o sala d'attesa, se G.lobby)
 let SEAT=null, CODE=null, VER=0, poll=null, busy=false, err='';
-let home={tab:'local',count:2,names:DEFAULT_NAMES.slice(),decks:DECKS.map(()=>true),target:10,myname:ls.get('hs-myname')||'',code:''};
+let home={tab:'local',count:2,names:DEFAULT_NAMES.slice(),decks:DECKS.map(()=>true),lang:['it','st','mix'].includes(ls.get('hs-lang'))?ls.get('hs-lang'):'mix',target:10,myname:ls.get('hs-myname')||'',code:''};
 let confirmReset=false, dealt='', lastFlipKey='', winSeen='', winFx='', lastTurnKey='', prevTab='local', lastCount=2;
 const prevPct={}, prevTok={}, seenLobby=new Set();
 const TABS=['local','create','join'];
@@ -600,9 +611,11 @@ function leave(){stopPoll();MODE=null;G=null;CODE=null;SEAT=null;ls.del('hs-onli
 /* ---------- schermata iniziale ---------- */
 function decksBlock(){
   const counts=DECKS.map((_,k)=>DATA.filter(d=>d[4]===k).length);
-  return `<section class="panel"><h2 class="eyebrow">Mazzi</h2><div class="decks">
-    ${DECKS.map((d,k)=>{const ch=chosen(k),custom=ch<counts[k];
-      return `<div class="deckbox ${d.isNew?'wide':''}" style="--c:${d.c}"><label class="deck"><input type="checkbox" id="deck${k}" data-k="${k}" ${home.decks[k]?'checked':''}><span class="tile"><span class="tick">${I.check}</span><b>${d.n}${d.isNew?'<span class="new-badge">Nuovo</span>':''}</b><small>${d.d}</small>${custom?`<span class="custom">Hai scelto ${ch} di ${counts[k]}</span>`:''}<span class="count mono">${fresh(k)}<span> / ${ch} nuove</span></span></span></label>
+  const langName={it:'italiana',st:'straniera'}[home.lang];
+  return `<section class="panel"><div class="panel-head"><h2 class="eyebrow">Mazzi</h2>
+      <div class="langseg" role="group" aria-label="Lingua delle canzoni">${LANGS.map(([v,l])=>`<button data-lang="${v}" aria-pressed="${home.lang===v}">${l}</button>`).join('')}</div></div><div class="decks">
+    ${DECKS.map((d,k)=>{const ch=chosen(k),picked=DATA.filter(x=>x[4]===k&&!EXCL.has(x[0])).length,custom=picked<counts[k],none=ch===0;
+      return `<div class="deckbox ${d.isNew?'wide':''} ${none?'empty':''}" style="--c:${d.c}"><label class="deck"><input type="checkbox" id="deck${k}" data-k="${k}" ${home.decks[k]?'checked':''}><span class="tile"><span class="tick">${I.check}</span><b>${d.n}${d.isNew?'<span class="new-badge">Nuovo</span>':''}</b><small>${d.d}</small>${custom?`<span class="custom">Hai scelto ${picked} di ${counts[k]}</span>`:''}${none?`<span class="count none">Nessuna canzone ${langName}</span>`:`<span class="count mono">${fresh(k)}<span> / ${ch} nuove</span></span>`}</span></label>
       <button class="gear" data-gear="${k}" aria-label="Scegli le canzoni di ${esc(d.n)}">${I.gear}</button></div>`}).join('')}
   </div></section>
   <section class="panel"><h2 class="eyebrow">Carte per vincere</h2><div class="seg">
@@ -667,6 +680,7 @@ function viewHome(){
   $$('[data-tab]').forEach(b=>b.onclick=()=>{home.tab=b.dataset.tab;err='';viewHome()});
   $$('[data-k]').forEach(el=>el.onchange=()=>{home.decks[+el.dataset.k]=el.checked;startAnyway=false});
   $$('[data-gear]').forEach(b=>b.onclick=()=>openSongs(+b.dataset.gear));
+  $$('[data-lang]').forEach(b=>b.onclick=()=>{if(home.lang===b.dataset.lang)return;home.lang=b.dataset.lang;ls.set('hs-lang',home.lang);startAnyway=false;err='';viewHome()});
   $$('[data-t]').forEach(el=>el.addEventListener('click',()=>{startAnyway=false}));
   $$('[data-t]').forEach(el=>el.onclick=()=>{home.target=+el.dataset.t;$$('[data-t]').forEach(b=>b.setAttribute('aria-pressed',b===el))});
   for(let i=0;i<home.count;i++){const inp=$('#n'+i);if(inp)inp.oninput=e=>{home.names[i]=e.target.value;$('#av'+i).textContent=initial(e.target.value,i)}}
@@ -697,6 +711,7 @@ function openSongs(k){
       <div class="sheet-meter"><span id="sh-count" class="mono"></span><div class="bar"><i id="sh-bar"></i></div></div>
       <label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="sh-q" type="search" placeholder="Cerca titolo o artista" autocomplete="off" aria-label="Cerca titolo o artista"></label>
       <div class="eras" role="group" aria-label="Filtra per epoca">${eras.map(([id,l])=>`<button class="chip" data-era="${id}" aria-pressed="${id==='all'}">${l}</button>`).join('')}</div>
+      ${home.lang!=='mix'?`<p class="langnote">Filtro <b>${home.lang==='it'?'Italiane':'Straniere'}</b> attivo: le canzoni ${home.lang==='it'?'straniere':'italiane'} non usciranno, anche se spuntate.</p>`:''}
       <div class="sheet-tools"><span id="sh-shown" class="muted"></span><span><button class="link" id="sh-all">Prendi tutte</button><button class="link" id="sh-none">Togli tutte</button></span></div>
     </header>
     <ul class="songlist" id="sh-list"></ul>
@@ -709,7 +724,7 @@ function openSongs(k){
   const list=()=>{const v=visible();
     $('#sh-shown').textContent=v.length===sheet.rows.length?`${v.length} canzoni`:`${v.length} di ${sheet.rows.length} mostrate`;
     $('#sh-all').textContent=v.length===sheet.rows.length?'Prendi tutte':'Prendi queste';$('#sh-none').textContent=v.length===sheet.rows.length?'Togli tutte':'Togli queste';
-    $('#sh-list').innerHTML=v.length?v.map(r=>`<li><label class="srow"><input type="checkbox" data-sid="${r[0]}" ${EXCL.has(r[0])?'':'checked'}><span class="box">${I.check}</span><span class="txt"><b>${esc(r[1])}</b><small>${esc(r[2])}</small></span><span class="yr mono">${r[3]}</span></label></li>`).join('')
+    $('#sh-list').innerHTML=v.length?v.map(r=>`<li><label class="srow ${langOk(r,home.lang)?'':'offlang'}"><input type="checkbox" data-sid="${r[0]}" ${EXCL.has(r[0])?'':'checked'}><span class="box">${I.check}</span><span class="txt"><b>${esc(r[1])}</b><small>${esc(r[2])}${langOk(r,home.lang)?'':' · fuori dal filtro'}</small></span><span class="yr mono">${r[3]}</span></label></li>`).join('')
       :`<li class="empty-list">Nessuna canzone corrisponde a «${esc(sheet.q)}».</li>`;
     $$('[data-sid]').forEach(c=>c.onchange=()=>{c.checked?EXCL.delete(c.dataset.sid):EXCL.add(c.dataset.sid);saveExcl();counts()})};
   counts();list();
@@ -732,16 +747,16 @@ function needDeck(){if(!home.decks.some(Boolean)){err='Scegli almeno un mazzo.';
 function startLocal(){
   if(!needDeck())return;
   const names=Array.from({length:home.count},(_,i)=>cleanName(home.names[i],i));
-  const w=shortDeckMsg(names.length,home.target,home.decks);
+  const w=shortDeckMsg(names.length,home.target,home.decks,home.lang);
   if(w&&(w.block||!startAnyway)){err=w.msg;startAnyway=!w.block;viewHome();if(!w.block){const g=$('#go');g.innerHTML='Inizia lo stesso '+I.arrow}return}
   startAnyway=false;
-  MODE='local';G=newGame(names,home.decks,home.target);saveLocal();render();window.scrollTo(0,0);if(G.note)toast(G.note);
+  MODE='local';G=newGame(names,home.decks,home.target,home.lang);saveLocal();render();window.scrollTo(0,0);if(G.note)toast(G.note);
 }
 async function createRoom(){
   if(!needDeck())return; const me=cleanName(home.myname,0);
   const go=$('#go');go.disabled=true;go.textContent='Creo la partita…';
   await syncPlayed();
-  const lobby={lobby:true,names:[me],decks:home.decks.slice(),target:home.target};
+  const lobby={lobby:true,names:[me],decks:home.decks.slice(),target:home.target,lang:home.lang};
   try{const {ok,j}=await post({op:'create',state:lobby});if(!ok||!j)throw 0;enterOnline(j.state,0)}
   catch(e){err='Non riesco a creare la partita: controlla la connessione.';viewHome()}
 }
@@ -780,10 +795,10 @@ async function joinRoom(code,seat){
 function enterOnline(state,seat){G=state;VER=G.v;CODE=G.code;SEAT=seat;MODE='online';ls.set('hs-online',{code:CODE,seat});startPoll();render();window.scrollTo(0,0)}
 function startFromLobby(){
   if(G.names.length<2)return;
-  const w=shortDeckMsg(G.names.length,G.target,G.decks);
+  const w=shortDeckMsg(G.names.length,G.target,G.decks,G.lang);
   if(w&&(w.block||!startAnyway)){startAnyway=!w.block;toast(w.msg);const b=$('#begin');if(b&&!w.block)b.innerHTML='Inizia lo stesso '+I.arrow;return}
   startAnyway=false;
-  commit(d=>{const g=newGame(d.names.slice(),d.decks,d.target);for(const k of Object.keys(d))delete d[k];Object.assign(d,g,{lobby:false})});
+  commit(d=>{const g=newGame(d.names.slice(),d.decks,d.target,d.lang);for(const k of Object.keys(d))delete d[k];Object.assign(d,g,{lobby:false})});
 }
 
 /* ---------- partita ---------- */
